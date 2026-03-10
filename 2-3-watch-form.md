@@ -88,17 +88,19 @@ For Escalation Threshold: editing the numeric input updates the slider position.
 The baseline window numeric input enforces: min 7, max 90. Values outside the range are clamped on blur (not rejected mid-typing). Typing `5` → on blur → corrects to `7`. Typing `120` → on blur → corrects to `90`.
 
 ### AC 5 — Save (create) wires to POST
-In new-watch mode, clicking `[Save Changes]`:
-1. Validates: name is non-empty (after trim) and a geography entity is selected. If either fails, the button remains enabled and an inline validation message appears below the invalid field. **No Save attempt is made when name is empty or no entity is selected.**
-2. Fires `POST /api/v1/watches` via `useCreateWatch()` with `{ name, geography_entity_id, enabled_signal_families, escalation_threshold, baseline_window_days }`.
-3. During the in-flight request: the Save button shows `"Saving…"` and is disabled; Cancel is also disabled.
-4. On success (HTTP 201): invalidates the `['watches']` TanStack Query cache; calls `onSaved(newWatch.id)` so `WatchConfigPage` transitions from "creating new" to "selected" mode with the newly created watch highlighted.
-5. On API error: an inline error message appears below the Save/Cancel row in `--accent-degraded` / `--text-secondary` style — `"Save failed: [error message from API response]"`. Save and Cancel both re-enable.
+In new-watch mode, the `[Save Changes]` button is **disabled** whenever: name is empty (after trim), no geography entity is selected, zero signal families are checked, or a mutation is in-flight. The button becomes enabled only when all three field conditions are satisfied simultaneously. No inline validation message is required to trigger the disabled state — the button simply cannot be clicked until the form is valid.
+
+When `[Save Changes]` is clicked (form is valid):
+1. Fires `POST /api/v1/watches` via `useCreateWatch()` with `{ name, geography_entity_id, enabled_signal_families, escalation_threshold, baseline_window_days }`.
+2. During the in-flight request: the Save button shows `"Saving…"` and is disabled; Cancel is also disabled.
+3. On success (HTTP 201): invalidates the `['watches']` TanStack Query cache; calls `onSaved(newWatch.id)` so `WatchConfigPage` transitions from "creating new" to "selected" mode with the newly created watch highlighted.
+4. On API error: an inline error message appears below the Save/Cancel row in `--accent-degraded` / `--text-secondary` style — `"Save failed: [error message from API response]"`. Save and Cancel both re-enable.
 
 ### AC 6 — Save (update) wires to PATCH
-In selected-watch mode, clicking `[Save Changes]`:
-1. Validates: name is non-empty after trim. If empty, inline validation message appears.
-2. Fires `PATCH /api/v1/watches/{watch.id}` via `useUpdateWatch()` with only the editable fields (`name`, `enabled_signal_families`, `escalation_threshold`, `baseline_window_days`). **`geography_entity_id` is never included in the PATCH body.**
+In selected-watch mode, the `[Save Changes]` button is **disabled** whenever: name is empty (after trim), zero signal families are checked, or a mutation is in-flight. Geography entity is not editable in this mode and does not factor into the disabled check.
+
+When `[Save Changes]` is clicked (form is valid):
+1. Fires `PATCH /api/v1/watches/{watch.id}` via `useUpdateWatch()` with only the editable fields (`name`, `enabled_signal_families`, `escalation_threshold`, `baseline_window_days`). **`geography_entity_id` is never included in the PATCH body.**
 3. During in-flight: same loading state as AC 5.
 4. On success: invalidates `['watches']` cache; replaces `[Save Changes]` with inline `"✓ Saved"` (same font size, `--accent-nominal` color, `--text-secondary`) for 1.5 seconds, then reverts to `[Save Changes]`. `onSaved` is called with the current `watch.id`.
 5. On API error: same inline error message pattern as AC 5.
