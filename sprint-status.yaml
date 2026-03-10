@@ -1,0 +1,201 @@
+# generated: 2026-03-09
+# project: panoptes
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: _bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories are worked sequentially by default for a solo builder; parallel is supported
+# - SM creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+# - Epic sequence: 1 (Foundation) → 2 (Watch Config) → 3 (Ingestion) → 4 (Baseline) →
+#   5 (Signal Detection — first intelligence slice) → 6 (Evidence) → 7 (Advanced Detectors) →
+#   8 (Spatial View) → 9 (Multi-provider + Hardening)
+
+generated: 2026-03-09
+project: panoptes
+project_key: NOKEY
+tracking_system: file-system
+story_location: _bmad-output/implementation-artifacts
+
+development_status:
+  # ─── Epic 1: Platform Foundation, Deployment Bootstrap & Authentication ───
+  epic-1: in-progress
+  1-1-monorepo-scaffold: done
+  1-2-alembic-initial-migration: done
+  1-3-shared-schema-python-package: done
+  1-4-vps-provisioning-and-domain-dns: backlog
+  1-5-production-nginx-config: backlog
+  1-6-production-docker-compose: backlog
+  1-7-fastapi-app-skeleton: done
+  1-8-cockpit-shell: done
+  epic-1-retrospective: optional
+
+  # ─── Epic 2: Watch Configuration ───
+  epic-2: in-progress
+  2-1-watches-api-crud: done
+  2-2-watch-configuration-surface: done
+  2-3-watch-form: ready-for-dev
+  2-4-compatible-vs-incompatible-change-detection: backlog
+  2-5-disable-vs-delete-hierarchy: backlog
+  2-6-watch-list: backlog
+  epic-2-retrospective: optional
+
+  # ─── Epic 3: Live Feed Ingestion & Feed Health Visibility ───
+  epic-3: backlog
+  3-1-ingestor-service-base: backlog
+  3-2-opensky-adapter: backlog
+  3-3-valkey-pubsub: backlog
+  3-4-entity-state-db-writes: backlog
+  3-5-feed-health-api: backlog
+  3-6-feed-health-signal-desk: backlog
+  epic-3-retrospective: optional
+
+  # ─── Epic 4: Baseline Computation & Watch Lifecycle States ───
+  epic-4: backlog
+  4-1-processor-service-base: backlog
+  4-2-welford-baseline: backlog
+  4-3-watch-status-state-machine: backlog
+  4-4-heartbeat-based-staleness: backlog
+  4-5-signal-desk-watch-state-rows: backlog
+  4-6-data-stop-notification: backlog
+  epic-4-retrospective: optional
+
+  # ─── Epic 5: Signal Detection & Signal Desk (First Intelligence Slice) ───
+  epic-5: backlog
+  5-1-base-signal-detector: backlog
+  5-2-port-dwell-anomaly-detector: backlog
+  5-3-cargo-route-deviation-detector: backlog
+  5-4-single-signal-confidence-scoring: backlog
+  5-5-degraded-confidence-adjustment: backlog
+  5-6-signals-api: backlog
+  5-7-signal-desk-full-layout: backlog
+  5-8-websocket-real-time-push: backlog
+  5-9-session-delta-badge: backlog
+  epic-5-retrospective: optional
+
+  # ─── Epic 6: Evidence Surface & Dismissal ───
+  epic-6: backlog
+  6-1-evidence-surface-layout: backlog
+  6-2-evidence-api: backlog
+  6-3-provenance-hash-chain: backlog
+  6-4-confidence-breakdown-component: backlog
+  6-5-view-spatially-button: backlog
+  6-6-inline-dismiss-workflow: backlog
+  6-7-append-only-orm-enforcement: backlog
+  epic-6-retrospective: optional
+
+  # ─── Epic 7: Advanced Signal Detectors & Compound Signals ───
+  epic-7: backlog
+  7-1-chokepoint-throughput-detector: backlog
+  7-2-vessel-density-anomaly-detector: backlog
+  7-3-absence-detection-detector: backlog
+  7-4-ais-dark-event-detector: backlog
+  7-5-gps-jamming-detector: backlog
+  7-6-commercial-mass-route-deviation-detector: backlog
+  7-7-compound-assembler: backlog
+  7-8-compound-signal-card: backlog
+  7-9-compound-signal-evidence-view: backlog
+  epic-7-retrospective: optional
+
+  # ─── Epic 8: Spatial View ───
+  epic-8: backlog
+  8-1-maplibre-gl-integration: backlog
+  8-2-spatial-view-surface: backlog
+  8-3-left-dossier-panel: backlog
+  8-4-signal-scoped-layer-loading: backlog
+  8-5-view-spatially-button-activation: backlog
+  epic-8-retrospective: optional
+
+  # ─── Epic 9: Multi-Provider Ingestion, Full Operational Hardening & Session Intelligence ───
+  epic-9: backlog
+  9-1-adsbexchange-adapter: backlog
+  9-2-ais-noaa-adapter: backlog
+  9-3-multi-provider-feed-isolation: backlog
+  9-4-retention-ttl-enforcement: backlog
+  9-5-domain-pulse-component: backlog
+  9-6-session-summary-panel: backlog
+  9-7-pg-stat-statements-monitoring: backlog
+  9-8-operational-readiness: backlog
+  epic-9-retrospective: optional
+
+# ─── Carry-Forward Notes ───────────────────────────────────────────────────
+carry_forward_notes:
+  - story: 1-3-shared-schema-python-package
+    date: 2026-03-09
+    notes:
+      - "Story 1.3 passed final DEV code review with no high findings."
+      - "Remaining low-priority polish items are non-blocking and do not gate Story 1.4+."
+      - "Evidence geometry API shape is intentionally deferred to later API work (Epic 6).
+         When implemented it MUST be GeoJSON-based — NOT raw ORM geometry."
+
+  - story: 1-8-cockpit-shell
+    date: 2026-03-10
+    notes:
+      - "Story 1.8 passed remediation re-review. All 5 patched items verified clean (M1/M2/M3/M4/L2)."
+      - "M1: AC #11 smoke-test startup commands match repo layout — cd services/api required before uvicorn."
+      - "M2: Queued axios retries set _retry=true before replay — loop guard covers both primary and queued paths."
+      - "M3: tryRestoreSession() deduplicated via module-level promise cache — React 18 StrictMode safe."
+      - "M4: apiClient has no baseURL — relative /api/v1/... paths proxied via Vite (dev) / nginx (prod)."
+      - "L2: access_token typed unknown and string-guarded before setToken() — malformed response safe."
+      - "Full Vite 5 + React 18 + TypeScript 5 cockpit scaffold established. CSS tokens locked. Axios interceptors locked. CockpitShell layout locked. Signal Desk is default home."
+      - "Next active story: 1.9 or next per sprint plan (1.4/1.5/1.6 remain intentionally deferred — production deployment)."
+
+  - story: 2-1-watches-api-crud
+    date: 2026-03-10
+    notes:
+      - "Story 2.1 done. AC #12 smoke test manually verified by Nikku against live local infra."
+      - "All 8 endpoints confirmed: GET/POST/GET/{id}/PATCH/{id}/DELETE/{id}/GET/{id}/baseline watches + GET/GET/{id} geography."
+      - "Startup path: repo root → uvicorn services.api.api.main:app --reload --host 0.0.0.0 --port 8000 --env-file .env"
+      - "29 unit tests passing. Soft-delete confirmed. Geometry excluded from geography responses."
+
+  - story: 2-2-watch-configuration-surface
+    date: 2026-03-10
+    notes:
+      - "Story 2.2 implemented. Two-column surface scaffold live: 320px watch list left, flex-1 form panel right."
+      - "6 files created/replaced: useWatches.ts, useGeographyEntities.ts, WatchListRow.tsx, WatchListColumn.tsx, WatchFormPanel.tsx, WatchConfigPage.tsx."
+      - "npm run build passes clean (153 modules, 0 errors)."
+      - "WatchListRow has badge prop (default undefined) for Story 2.6 status badge slot."
+      - "WatchFormPanel has rightSlot prop (default null) for Story 2.5 disable button slot."
+      - "useGeographyEntities staleTime: 5 minutes. Both hooks use apiClient relative paths — no localhost hardcoding."
+      - "Entity name fallback: if geography_entity_id not in map, raw UUID displayed (safe, not a crash)."
+      - "Status badge colors, baseline progress bar, signal count on rows all deferred to Story 2.6."
+      - "Full form fields (geography selector, signal families, threshold, baseline window) deferred to Story 2.3."
+      - "Disable/delete action hierarchy deferred to Story 2.5."
+      - "Code review remediation (M1/L1/L2) applied and build re-verified (153 modules, 0 errors)."
+      - "M1: entities isLoading+error now combined with watches isLoading+error before forwarding to WatchListColumn."
+      - "L1: isCreatingNew removed from WatchListColumnProps and caller — was accepted but never used."
+      - "L2: React.ReactNode replaced with explicit import type { ReactNode } in WatchListRow and WatchFormPanel."
+      - "Manual smoke test passed locally (Nikku, 2026-03-10). Login, /watches route, two-column layout, row selection, [+ New]/deselect/reselect cycle, inactive row dimming — all verified clean. Story closed."
+
+  - story: 1-7-fastapi-app-skeleton
+    date: 2026-03-09
+    notes:
+      - "Story 1.7 passed final DEV code review after remediation. All 32 tests passing."
+      - "bcrypt misconfiguration path is now covered by test (test_login_bcrypt_misconfiguration_returns_500_error_envelope)."
+      - "Local-first route remains in effect: stories 1.4, 1.5, 1.6 are intentionally deferred (production deployment — no bearing on local dev)."
+      - "1.4 (VPS provisioning), 1.5 (production nginx), 1.6 (production Docker Compose) remain backlog; next active story is 1.8 (cockpit shell)."
