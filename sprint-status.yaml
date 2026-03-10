@@ -59,7 +59,7 @@ development_status:
   epic-2: in-progress
   2-1-watches-api-crud: done
   2-2-watch-configuration-surface: done
-  2-3-watch-form: ready-for-dev
+  2-3-watch-form: done
   2-4-compatible-vs-incompatible-change-detection: backlog
   2-5-disable-vs-delete-hierarchy: backlog
   2-6-watch-list: backlog
@@ -172,6 +172,19 @@ carry_forward_notes:
       - "All 8 endpoints confirmed: GET/POST/GET/{id}/PATCH/{id}/DELETE/{id}/GET/{id}/baseline watches + GET/GET/{id} geography."
       - "Startup path: repo root → uvicorn services.api.api.main:app --reload --host 0.0.0.0 --port 8000 --env-file .env"
       - "29 unit tests passing. Soft-delete confirmed. Geometry excluded from geography responses."
+
+  - story: 2-3-watch-form
+    date: 2026-03-10
+    notes:
+      - "Story 2.3 implemented. Real watch form live: name input, entity selector (new) / read-only display (edit), 8 signal family checkboxes, escalation threshold slider+input, baseline window input, Save/Cancel row, inline error, ✓ Saved confirmation."
+      - "2 new files: useCreateWatch.ts (POST /api/v1/watches), useUpdateWatch.ts (PATCH /api/v1/watches/{id})."
+      - "WatchFormPanel.tsx fully replaced; WatchConfigPage.tsx call site updated (watchName prop removed, watch+entities+onSaved+onCancel added)."
+      - "geography_entity_id never in PATCH body — WatchUpdate schema enforcement honored."
+      - "watch?.id used as useEffect dependency — avoids re-reset on post-save cache invalidation re-fetch."
+      - "rightSlot seam preserved (Story 2.5). data-slot=delete-zone and data-slot=entity-thumbnail reserved (Stories 2.5 / future)."
+      - "No incompatible-change detection (2.4), no disable/delete (2.5), no list visual changes (2.6)."
+      - "Build: tsc -b && vite build → 155 modules, 0 errors."
+      - "Smoke test (AC 14) manually verified by Nikku (2026-03-10). All paths clean: new-mode form, create flow, edit-mode populate, geography locked, slider sync, baseline clamping, ✓ Saved, cancel behaviors. Story closed."
 
   - story: 2-2-watch-configuration-surface
     date: 2026-03-10

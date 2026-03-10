@@ -1,6 +1,6 @@
 # Story 2.3: Watch Form
 
-Status: ready-for-dev
+Status: done
 
 ## Dependency Note — Local-First Route
 
@@ -276,61 +276,61 @@ True optimistic cache mutation adds complexity (need to snapshot and rollback th
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Create mutation hooks (AC: #5, #6)
-  - [ ] 1.1 Create `services/cockpit/src/hooks/useCreateWatch.ts`: exports `useCreateWatch()` — `useMutation({ mutationFn: createWatch })` where `createWatch` calls `POST /api/v1/watches` via `apiClient`. Returns the created `WatchRow`. `onSuccess`: call `queryClient.invalidateQueries({ queryKey: ['watches'] })`.
-  - [ ] 1.2 Create `services/cockpit/src/hooks/useUpdateWatch.ts`: exports `useUpdateWatch()` — `useMutation({ mutationFn: updateWatch })` where `updateWatch` calls `PATCH /api/v1/watches/{id}` via `apiClient`. Returns the updated `WatchRow`. `onSuccess`: call `queryClient.invalidateQueries({ queryKey: ['watches'] })`.
+- [x] Task 1: Create mutation hooks (AC: #5, #6)
+  - [x] 1.1 Create `services/cockpit/src/hooks/useCreateWatch.ts`: exports `useCreateWatch()` — `useMutation({ mutationFn: createWatch })` where `createWatch` calls `POST /api/v1/watches` via `apiClient`. Returns the created `WatchRow`. `onSuccess`: call `queryClient.invalidateQueries({ queryKey: ['watches'] })`.
+  - [x] 1.2 Create `services/cockpit/src/hooks/useUpdateWatch.ts`: exports `useUpdateWatch()` — `useMutation({ mutationFn: updateWatch })` where `updateWatch` calls `PATCH /api/v1/watches/{id}` via `apiClient`. Returns the updated `WatchRow`. `onSuccess`: call `queryClient.invalidateQueries({ queryKey: ['watches'] })`.
 
-- [ ] Task 2: Expand `WatchFormPanel.tsx` — props and structure (AC: #1, #2, #10, #12)
-  - [ ] 2.1 Add/update props interface: drop `watchName?: string`; add `watch?: WatchRow`, `entities: GeographyEntityRow[]`, `onSaved?: (watchId: string) => void`, `onCancel?: () => void`. Preserve `mode: 'none' | 'new' | 'selected'` and `rightSlot?: ReactNode`.
-  - [ ] 2.2 Add form state: `name`, `geographyEntityId`, `enabledSignalFamilies`, `escalationThreshold`, `baselineWindowDays`, `justSaved`, `saveError`. Use `useState` only — no form library.
-  - [ ] 2.3 Add `useEffect` to reset form state when `watch` or `mode` changes: if `mode === 'new'` → reset to blank defaults; if `mode === 'selected'` and `watch` changes → populate from `watch` fields.
-  - [ ] 2.4 Derive sticky header label from `watch?.name ?? ''` when `mode === 'selected'`; `'NEW WATCH'` when `mode === 'new'`. Remove previous `watchName` string prop dependency.
-  - [ ] 2.5 Ensure `rightSlot ?? null` still renders correctly in the header — no regression on the 2.5 extension seam.
+- [x] Task 2: Expand `WatchFormPanel.tsx` — props and structure (AC: #1, #2, #10, #12)
+  - [x] 2.1 Add/update props interface: drop `watchName?: string`; add `watch?: WatchRow`, `entities: GeographyEntityRow[]`, `onSaved?: (watchId: string) => void`, `onCancel?: () => void`. Preserve `mode: 'none' | 'new' | 'selected'` and `rightSlot?: ReactNode`.
+  - [x] 2.2 Add form state: `name`, `geographyEntityId`, `enabledSignalFamilies`, `escalationThreshold`, `baselineWindowDays`, `justSaved`, `saveError`. Use `useState` only — no form library.
+  - [x] 2.3 Add `useEffect` to reset form state when `watch` or `mode` changes: if `mode === 'new'` → reset to blank defaults; if `mode === 'selected'` and `watch` changes → populate from `watch` fields.
+  - [x] 2.4 Derive sticky header label from `watch?.name ?? ''` when `mode === 'selected'`; `'NEW WATCH'` when `mode === 'new'`. Remove previous `watchName` string prop dependency.
+  - [x] 2.5 Ensure `rightSlot ?? null` still renders correctly in the header — no regression on the 2.5 extension seam.
 
-- [ ] Task 3: Implement form fields in `WatchFormPanel.tsx` body (AC: #1, #2, #3, #4, #9, #10, #11)
-  - [ ] 3.1 Watch Name field: `<label>` + full-width `<input type="text">` with placeholder "Enter watch name". On change: update `name` state. Required for both new and edit.
-  - [ ] 3.2 Geography Entity field — new mode: `<label>` + `<select>` dropdown populated from `entities` prop. First option: `<option value="">Select entity…</option>`, then one `<option>` per entity (value = `entity.id`, label = `entity.name`). Controlled by `geographyEntityId` state.
-  - [ ] 3.3 Geography Entity field — edit mode: `<label>` + static text container (disabled-style div) showing resolved entity name from `entities` prop lookup by `watch.geography_entity_id`. Show `(locked)` label at 11px `--text-tertiary` (AC 10).
-  - [ ] 3.4 Entity boundary thumbnail placeholder (AC 9): `<div data-slot="entity-thumbnail">` with height 96px, `--bg-raised` bg, `1px solid --border-subtle` border, border-radius 4px, centered placeholder text.
-  - [ ] 3.5 Signal Families section: `<label>` heading + 8 checkbox rows using `SIGNAL_FAMILIES` constant (see Dev Notes). Each row: `<input type="checkbox">` + `<label>`. Controlled by `enabledSignalFamilies` state (array of string values).
-  - [ ] 3.6 Escalation Threshold: `<label>` + flex row with `<input type="range" min={1} max={100} step={1}>` + `<input type="number" min={1} max={100}>`. Sync both onChange. Helper text below.
-  - [ ] 3.7 Baseline Window: `<label>` + `<input type="number" min={7} max={90}>` + inline `"days"` label. Clamp to [7, 90] on blur (AC 4). Helper text below.
-  - [ ] 3.8 Signal family at-least-one validation: compute `isSignalFamiliesEmpty = enabledSignalFamilies.length === 0`; pass to save button disabled logic (AC 11).
+- [x] Task 3: Implement form fields in `WatchFormPanel.tsx` body (AC: #1, #2, #3, #4, #9, #10, #11)
+  - [x] 3.1 Watch Name field: `<label>` + full-width `<input type="text">` with placeholder "Enter watch name". On change: update `name` state. Required for both new and edit.
+  - [x] 3.2 Geography Entity field — new mode: `<label>` + `<select>` dropdown populated from `entities` prop. First option: `<option value="">Select entity…</option>`, then one `<option>` per entity (value = `entity.id`, label = `entity.name`). Controlled by `geographyEntityId` state.
+  - [x] 3.3 Geography Entity field — edit mode: `<label>` + static text container (disabled-style div) showing resolved entity name from `entities` prop lookup by `watch.geography_entity_id`. Show `(locked)` label at 11px `--text-tertiary` (AC 10).
+  - [x] 3.4 Entity boundary thumbnail placeholder (AC 9): `<div data-slot="entity-thumbnail">` with height 96px, `--bg-raised` bg, `1px solid --border-subtle` border, border-radius 4px, centered placeholder text.
+  - [x] 3.5 Signal Families section: `<label>` heading + 8 checkbox rows using `SIGNAL_FAMILIES` constant (see Dev Notes). Each row: `<input type="checkbox">` + `<label>`. Controlled by `enabledSignalFamilies` state (array of string values).
+  - [x] 3.6 Escalation Threshold: `<label>` + flex row with `<input type="range" min={1} max={100} step={1}>` + `<input type="number" min={1} max={100}>`. Sync both onChange. Helper text below.
+  - [x] 3.7 Baseline Window: `<label>` + `<input type="number" min={7} max={90}>` + inline `"days"` label. Clamp to [7, 90] on blur (AC 4). Helper text below.
+  - [x] 3.8 Signal family at-least-one validation: compute `isSignalFamiliesEmpty = enabledSignalFamilies.length === 0`; pass to save button disabled logic (AC 11).
 
-- [ ] Task 4: Implement Save / Cancel row and delete zone placeholder (AC: #5, #6, #7, #8)
-  - [ ] 4.1 Save/Cancel row: right-aligned flex container. `[Save Changes]` primary button (disabled when `isPending || name.trim() === '' || (mode === 'new' && !geographyEntityId) || isSignalFamiliesEmpty`). Shows `"Saving…"` label when `isPending`.
-  - [ ] 4.2 Cancel button: disabled when `isPending`. Calls form-level cancel handler (see 4.4).
-  - [ ] 4.3 `justSaved` state: after successful update mutation, set `justSaved = true` → show `"✓ Saved"` (green/nominal color) in place of `[Save Changes]` → `setTimeout(() => setJustSaved(false), 1500)`.
-  - [ ] 4.4 Cancel handler: if `mode === 'new'` → call `onCancel()`; if `mode === 'selected'` → reset all form state fields back to `watch` prop values (no API call, no parent callback).
-  - [ ] 4.5 Inline error display: `{saveError && <p style={{ color: 'var(--accent-degraded)', fontSize: 12 }}>{saveError}</p>}` below Save/Cancel row.
-  - [ ] 4.6 Delete zone placeholder (AC 8): render only in `mode === 'selected'`, below Save/Cancel row. Dashed divider + `<div data-slot="delete-zone">` with placeholder text.
+- [x] Task 4: Implement Save / Cancel row and delete zone placeholder (AC: #5, #6, #7, #8)
+  - [x] 4.1 Save/Cancel row: right-aligned flex container. `[Save Changes]` primary button (disabled when `isPending || name.trim() === '' || (mode === 'new' && !geographyEntityId) || isSignalFamiliesEmpty`). Shows `"Saving…"` label when `isPending`.
+  - [x] 4.2 Cancel button: disabled when `isPending`. Calls form-level cancel handler (see 4.4).
+  - [x] 4.3 `justSaved` state: after successful update mutation, set `justSaved = true` → show `"✓ Saved"` (green/nominal color) in place of `[Save Changes]` → `setTimeout(() => setJustSaved(false), 1500)`.
+  - [x] 4.4 Cancel handler: if `mode === 'new'` → call `onCancel()`; if `mode === 'selected'` → reset all form state fields back to `watch` prop values (no API call, no parent callback).
+  - [x] 4.5 Inline error display: `{saveError && <p style={{ color: 'var(--accent-degraded)', fontSize: 12 }}>{saveError}</p>}` below Save/Cancel row.
+  - [x] 4.6 Delete zone placeholder (AC 8): render only in `mode === 'selected'`, below Save/Cancel row. Dashed divider + `<div data-slot="delete-zone">` with placeholder text.
 
-- [ ] Task 5: Implement save mutation calls in `WatchFormPanel.tsx` (AC: #5, #6)
-  - [ ] 5.1 Call `useCreateWatch()` and `useUpdateWatch()` inside `WatchFormPanel`.
-  - [ ] 5.2 Implement `handleSave()`: if `mode === 'new'` → call `createMutation.mutate(createPayload)` where payload is `{ name: name.trim(), geography_entity_id: geographyEntityId, enabled_signal_families: enabledSignalFamilies, escalation_threshold: escalationThreshold, baseline_window_days: baselineWindowDays }`.
-  - [ ] 5.3 Create mutation `onSuccess`: `onSaved?.(data.id)` with the returned watch ID.
-  - [ ] 5.4 Create mutation `onError`: set `saveError` state from the error message.
-  - [ ] 5.5 Implement `handleSave()` update path: if `mode === 'selected'` → call `updateMutation.mutate({ id: watch.id, body: { name: name.trim(), enabled_signal_families: enabledSignalFamilies, escalation_threshold: escalationThreshold, baseline_window_days: baselineWindowDays } })`. **Never include `geography_entity_id` in the update body.**
-  - [ ] 5.6 Update mutation `onSuccess`: `setJustSaved(true)` + `setTimeout` to clear; `onSaved?.(watch.id)`.
-  - [ ] 5.7 Update mutation `onError`: set `saveError` state.
-  - [ ] 5.8 Clear `saveError` state whenever form fields change (so stale error doesn't show after user corrects input).
+- [x] Task 5: Implement save mutation calls in `WatchFormPanel.tsx` (AC: #5, #6)
+  - [x] 5.1 Call `useCreateWatch()` and `useUpdateWatch()` inside `WatchFormPanel`.
+  - [x] 5.2 Implement `handleSave()`: if `mode === 'new'` → call `createMutation.mutate(createPayload)` where payload is `{ name: name.trim(), geography_entity_id: geographyEntityId, enabled_signal_families: enabledSignalFamilies, escalation_threshold: escalationThreshold, baseline_window_days: baselineWindowDays }`.
+  - [x] 5.3 Create mutation `onSuccess`: `onSaved?.(data.id)` with the returned watch ID.
+  - [x] 5.4 Create mutation `onError`: set `saveError` state from the error message.
+  - [x] 5.5 Implement `handleSave()` update path: if `mode === 'selected'` → call `updateMutation.mutate({ id: watch.id, body: { name: name.trim(), enabled_signal_families: enabledSignalFamilies, escalation_threshold: escalationThreshold, baseline_window_days: baselineWindowDays } })`. **Never include `geography_entity_id` in the update body.**
+  - [x] 5.6 Update mutation `onSuccess`: `setJustSaved(true)` + `setTimeout` to clear; `onSaved?.(watch.id)`.
+  - [x] 5.7 Update mutation `onError`: set `saveError` state.
+  - [x] 5.8 Clear `saveError` state whenever form fields change (so stale error doesn't show after user corrects input).
 
-- [ ] Task 6: Update `WatchConfigPage.tsx` (AC: #2, #5, #6, #7)
-  - [ ] 6.1 Pass `watch={selectedWatch ?? undefined}` and `entities={entities ?? []}` to `WatchFormPanel`.
-  - [ ] 6.2 Add `handleWatchSaved(watchId: string)`: sets `selectedWatchId = watchId`, `setIsCreatingNew(false)`. Covers both create (select new watch) and update (keep selected watch, re-renders with fresh data after cache invalidation).
-  - [ ] 6.3 Add `handleFormCancel()`: sets `isCreatingNew(false)`. (For edit mode cancel, the form handles it internally — `onCancel` only needs to handle the new-mode case at the page level, but passing it uniformly is fine.)
-  - [ ] 6.4 Pass `onSaved={handleWatchSaved}` and `onCancel={handleFormCancel}` to `WatchFormPanel`.
-  - [ ] 6.5 Remove `watchName` prop from `WatchFormPanel` call site (replaced by `watch` prop).
+- [x] Task 6: Update `WatchConfigPage.tsx` (AC: #2, #5, #6, #7)
+  - [x] 6.1 Pass `watch={selectedWatch ?? undefined}` and `entities={entities ?? []}` to `WatchFormPanel`.
+  - [x] 6.2 Add `handleWatchSaved(watchId: string)`: sets `selectedWatchId = watchId`, `setIsCreatingNew(false)`. Covers both create (select new watch) and update (keep selected watch, re-renders with fresh data after cache invalidation).
+  - [x] 6.3 Add `handleFormCancel()`: sets `isCreatingNew(false)`. (For edit mode cancel, the form handles it internally — `onCancel` only needs to handle the new-mode case at the page level, but passing it uniformly is fine.)
+  - [x] 6.4 Pass `onSaved={handleWatchSaved}` and `onCancel={handleFormCancel}` to `WatchFormPanel`.
+  - [x] 6.5 Remove `watchName` prop from `WatchFormPanel` call site (replaced by `watch` prop).
 
-- [ ] Task 7: TypeScript compile + smoke test (AC: #13, #14)
-  - [ ] 7.1 `npm run build` — confirm no TypeScript errors
-  - [ ] 7.2 Start infra + API + cockpit dev server; run through the full smoke test sequence in AC 14 (Nikku)
-  - [ ] 7.3 Verify new-watch create: form → save → new watch appears in list and is selected
-  - [ ] 7.4 Verify edit-watch: click watch → form populates → edit a field → save → ✓ Saved confirmation → list updates
-  - [ ] 7.5 Verify cancel from new mode: exits to no-selection state
-  - [ ] 7.6 Verify cancel from edit mode: form reverts to saved values, watch stays selected
-  - [ ] 7.7 Verify slider/input sync on escalation threshold
-  - [ ] 7.8 Verify baseline window clamping on blur
+- [x] Task 7: TypeScript compile + smoke test (AC: #13, #14)
+  - [x] 7.1 `npm run build` — confirm no TypeScript errors — PASSED: 155 modules, 0 errors
+  - [x] 7.2 Start infra + API + cockpit dev server; run through the full smoke test sequence in AC 14 (Nikku)
+  - [x] 7.3 Verify new-watch create: form → save → new watch appears in list and is selected
+  - [x] 7.4 Verify edit-watch: click watch → form populates → edit a field → save → ✓ Saved confirmation → list updates
+  - [x] 7.5 Verify cancel from new mode: exits to no-selection state
+  - [x] 7.6 Verify cancel from edit mode: form reverts to saved values, watch stays selected
+  - [x] 7.7 Verify slider/input sync on escalation threshold
+  - [x] 7.8 Verify baseline window clamping on blur
 
 ---
 
@@ -679,16 +679,53 @@ Use native HTML `<input type="range">`, `<input type="text">`, `<input type="num
 
 ## Dev Agent Record
 
-*(To be filled in by the dev agent upon implementation)*
-
 ### Agent Model Used
+
+claude-sonnet-4-6 (Amelia, Dev Agent)
 
 ### Debug Log References
 
+None — implementation proceeded without blockers. Build verified clean on first pass.
+
 ### Completion Notes List
 
+1. **`watchName` prop removed** — `WatchFormPanel` now derives the header label from `watch?.name` internally. Call site in `WatchConfigPage` updated accordingly.
+2. **`useEffect` dependency is `watch?.id`, not `watch`** — avoids re-running the reset effect when the same watch re-fetches after cache invalidation (new object reference, same data). Critical to prevent clearing user edits mid-form.
+3. **`geography_entity_id` never in PATCH body** — `useUpdateWatch` and `handleSave()` update path both explicitly exclude this field. The `UpdateWatchPayload` interface omits it.
+4. **`justSaved` replaces Save button for 1500ms** — `✓ Saved` renders as a span in `--accent-nominal`, not a disabled button. Reverts automatically via `setTimeout`.
+5. **Save button gating** — new mode: name non-empty + entity selected + ≥1 signal family + not pending. Edit mode: name non-empty + ≥1 signal family + not pending. Geography entity excluded from edit-mode gate (not editable).
+6. **Signal family at-least-one message** — renders inline below checkbox list when `enabledSignalFamilies.length === 0`, separate from `saveError`. This is a live UI cue, not click-time validation.
+7. **`saveError` clears on any field change** — via `clearSaveError()` called in each onChange handler. Stale error disappears as soon as user starts correcting input.
+8. **`rightSlot` seam preserved** — sticky header still renders `{rightSlot}` in right-aligned position. Story 2.5 passes `<DisableButton />` here with zero prop-interface changes needed.
+9. **`data-slot="delete-zone"` and `data-slot="entity-thumbnail"` reserved** — both are static placeholders with no click handlers. Story 2.5 targets `delete-zone`; a future story targets `entity-thumbnail`.
+10. **No new npm packages** — only `@tanstack/react-query`, `react`, and `axios` (via `apiClient`) used. All native HTML form elements.
+11. **Build result** — `tsc -b && vite build` passed: 155 modules (153 from 2.2 + 2 new hook files), 0 TypeScript errors.
+12. **Smoke test (7.2–7.8)** — manually verified by Nikku (2026-03-10). All paths confirmed: new-mode form render, create flow (POST 201, auto-select), edit-mode populate, geography locked display, slider/input sync, baseline window blur clamping (7–90), ✓ Saved confirmation, edit-mode cancel field reset, new-mode cancel return to no-selection. No layout or overflow issues observed.
+
 ### File List
+
+**Created:**
+- `services/cockpit/src/hooks/useCreateWatch.ts`
+- `services/cockpit/src/hooks/useUpdateWatch.ts`
+
+**Modified:**
+- `services/cockpit/src/components/watch-config/WatchFormPanel.tsx`
+- `services/cockpit/src/pages/WatchConfigPage.tsx`
+
+**Unchanged (locked / out of scope):**
+- `services/cockpit/src/layouts/CockpitShell.tsx`
+- `services/cockpit/src/styles/tokens.css`
+- `services/cockpit/src/lib/api-client.ts`
+- `services/cockpit/src/components/shell/NavRail.tsx`
+- `services/cockpit/src/components/watch-config/WatchListColumn.tsx`
+- `services/cockpit/src/components/watch-config/WatchListRow.tsx`
+- `services/cockpit/src/hooks/useWatches.ts`
+- `services/cockpit/src/hooks/useGeographyEntities.ts`
+- `services/api/` (no backend changes)
+- `migrations/` (no schema changes)
 
 ## Change Log
 
 - 2026-03-10: Story 2.3 created by Bob (SM, claude-sonnet-4-6). Prerequisites confirmed: 1.1, 1.2, 1.3, 1.7, 1.8, 2.1, 2.2 all done. SM ambiguities called out: geography edit mode, submit scope, validation boundaries, optimistic update scope. Boundary callouts for 2.4 (incompatible change), 2.5 (disable/delete), 2.6 (list visuals) documented. Status: ready-for-dev.
+- 2026-03-10: Story 2.3 implemented by Amelia (Dev Agent, claude-sonnet-4-6). All tasks 1–6 complete. Build passes: 155 modules, 0 TypeScript errors. Tasks 7.2–7.8 (smoke test) pending Nikku manual verification. Status: review.
+- 2026-03-10: Story 2.3 smoke test passed manually by Nikku. All AC 14 checklist items verified clean. Status: done.
