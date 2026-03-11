@@ -66,8 +66,8 @@ development_status:
   epic-2-retrospective: optional
 
   # ─── Epic 3: Live Feed Ingestion & Feed Health Visibility ───
-  epic-3: backlog
-  3-1-ingestor-service-base: backlog
+  epic-3: in-progress
+  3-1-ingestor-service-base: ready-for-dev
   3-2-opensky-adapter: backlog
   3-3-valkey-pubsub: backlog
   3-4-entity-state-db-writes: backlog
