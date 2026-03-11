@@ -1,6 +1,6 @@
 # Story 3.4: Entity State DB Writes
 
-**Status:** ready-for-dev
+**Status:** done
 **Epic:** 3 — Live Feed Ingestion & Feed Health Visibility
 **Sprint sequence:** Fourth story of Epic 3; unblocks 3.5 (feed health API), 4.1 (Processor — reads `entity_states`)
 
@@ -216,64 +216,64 @@ so that the processor service can query accumulated entity observations for base
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Update `IngestorSettings` in `main.py`** (AC 1)
-  - [ ] 1.1 Remove `database_url: Optional[str] = None` field
-  - [ ] 1.2 Add `postgres_host: Optional[str] = None`, `postgres_port: int = 5432`, `postgres_db: str = "panoptes"`, `postgres_user: str = "panoptes"`, `postgres_password: Optional[str] = None`
-  - [ ] 1.3 Add `@property def database_url(self) -> Optional[str]` — construct asyncpg URL when host+password present; return `None` otherwise
-  - [ ] 1.4 Verify: all other `IngestorSettings` fields unchanged; `class Config` block unchanged
+- [x] **Task 1: Update `IngestorSettings` in `main.py`** (AC 1)
+  - [x] 1.1 Remove `database_url: Optional[str] = None` field
+  - [x] 1.2 Add `postgres_host: Optional[str] = None`, `postgres_port: int = 5432`, `postgres_db: str = "panoptes"`, `postgres_user: str = "panoptes"`, `postgres_password: Optional[str] = None`
+  - [x] 1.3 Add `@property def database_url(self) -> Optional[str]` — construct asyncpg URL when host+password present; return `None` otherwise
+  - [x] 1.4 Verify: all other `IngestorSettings` fields unchanged; `class Config` block unchanged
 
-- [ ] **Task 2: Create `services/ingestor/ingestor/models.py`** (AC 2)
-  - [ ] 2.1 Import: `uuid`, `datetime`, `typing.Optional`, `typing.Any`, `sqlalchemy as sa`, `sqlalchemy.orm.DeclarativeBase`, `sqlalchemy.orm.Mapped`, `sqlalchemy.orm.mapped_column`, `sqlalchemy.dialects.postgresql.JSONB`, `sqlalchemy.dialects.postgresql.ENUM as PgEnum`, `geoalchemy2.Geometry`
-  - [ ] 2.2 Define `Base = DeclarativeBase()`
-  - [ ] 2.3 Define `EntityState(Base)` with all columns per AC 2 spec — pay attention to nullable/not-nullable per migration
-  - [ ] 2.4 Define `RawAdsb(Base)` with all columns per AC 2 spec
-  - [ ] 2.5 Verify: no `create_all()`, no relationships, no `__repr__` needed
+- [x] **Task 2: Create `services/ingestor/ingestor/models.py`** (AC 2)
+  - [x] 2.1 Import: `uuid`, `datetime`, `typing.Optional`, `typing.Any`, `sqlalchemy as sa`, `sqlalchemy.orm.DeclarativeBase`, `sqlalchemy.orm.Mapped`, `sqlalchemy.orm.mapped_column`, `sqlalchemy.dialects.postgresql.JSONB`, `sqlalchemy.dialects.postgresql.ENUM as PgEnum`, `geoalchemy2.Geometry`
+  - [x] 2.2 Define `Base = DeclarativeBase()`
+  - [x] 2.3 Define `EntityState(Base)` with all columns per AC 2 spec — pay attention to nullable/not-nullable per migration
+  - [x] 2.4 Define `RawAdsb(Base)` with all columns per AC 2 spec
+  - [x] 2.5 Verify: no `create_all()`, no relationships, no `__repr__` needed
 
-- [ ] **Task 3: Create `services/ingestor/ingestor/writer.py`** (AC 3)
-  - [ ] 3.1 Import: `logging`, `geoalchemy2.WKTElement`, `ingestor.compliance.ComplianceGuard`, `ingestor.normalizer.NormalizedAdsbState`, `ingestor.models.EntityState`, `ingestor.models.RawAdsb`
-  - [ ] 3.2 Implement `EntityStateWriter.__init__` — session_factory, guard, log; one-time WARNING log if `should_write_raw()` is False
-  - [ ] 3.3 Implement `_write_entity_state()` — WKTElement position construction (lon, lat order), entity_type value extraction, None for mmsi/flight_number/vessel_name, session.add()
-  - [ ] 3.4 Implement `_write_raw_adsb()` — raw_payload dict, provider, icao24, received_at, session.add()
-  - [ ] 3.5 Implement `write()` — async session context, begin() transaction, compliance gate for raw write, try/except with WARNING log, return bool
-  - [ ] 3.6 Verify: no per-record warning log for raw skip — one-time only at init
+- [x] **Task 3: Create `services/ingestor/ingestor/writer.py`** (AC 3)
+  - [x] 3.1 Import: `logging`, `geoalchemy2.WKTElement`, `ingestor.compliance.ComplianceGuard`, `ingestor.normalizer.NormalizedAdsbState`, `ingestor.models.EntityState`, `ingestor.models.RawAdsb`
+  - [x] 3.2 Implement `EntityStateWriter.__init__` — session_factory, guard, log; one-time WARNING log if `should_write_raw()` is False
+  - [x] 3.3 Implement `_write_entity_state()` — WKTElement position construction (lon, lat order), entity_type value extraction, None for mmsi/flight_number/vessel_name, session.add()
+  - [x] 3.4 Implement `_write_raw_adsb()` — raw_payload dict, provider, icao24, received_at, session.add()
+  - [x] 3.5 Implement `write()` — async session context, begin() transaction, compliance gate for raw write, try/except with WARNING log, return bool
+  - [x] 3.6 Verify: no per-record warning log for raw skip — one-time only at init
 
-- [ ] **Task 4: Update `services/ingestor/ingestor/main.py`** (AC 4)
-  - [ ] 4.1 Add SQLAlchemy async imports: `create_async_engine`, `async_sessionmaker`, `AsyncSession`
-  - [ ] 4.2 Add `from ingestor.writer import EntityStateWriter`
-  - [ ] 4.3 After compliance gate log: conditionally create `engine` → `session_factory` → `EntityStateWriter` when `settings.database_url` is not None
-  - [ ] 4.4 Log INFO when writer initialized (with raw_adsb status); log WARNING when DB vars absent
-  - [ ] 4.5 Pass `db_writer` as 4th arg to `adapter_class(config, settings, redis_client, db_writer)`
-  - [ ] 4.6 Verify: heartbeat creation, `asyncio.gather`, all other main() logic unchanged
+- [x] **Task 4: Update `services/ingestor/ingestor/main.py`** (AC 4)
+  - [x] 4.1 Add SQLAlchemy async imports: `create_async_engine`, `async_sessionmaker`, `AsyncSession`
+  - [x] 4.2 Add `from ingestor.writer import EntityStateWriter`
+  - [x] 4.3 After compliance gate log: conditionally create `engine` → `session_factory` → `EntityStateWriter` when `settings.database_url` is not None
+  - [x] 4.4 Log INFO when writer initialized (with raw_adsb status); log WARNING when DB vars absent
+  - [x] 4.5 Pass `db_writer` as 4th arg to `adapter_class(config, settings, redis_client, db_writer)`
+  - [x] 4.6 Verify: heartbeat creation, `asyncio.gather`, all other main() logic unchanged
 
-- [ ] **Task 5: Update `services/ingestor/ingestor/adapters/opensky.py`** (AC 5)
-  - [ ] 5.1 Add `db_writer=None` as 4th parameter to `__init__`; store `self._db_writer = db_writer`
-  - [ ] 5.2 Add `written_count = 0` to `run()` cycle initializers (alongside `success_count`, `skip_count`, `published_count`)
-  - [ ] 5.3 After `_publish_state()` call in normalize loop: if `self._db_writer` is not None, call `await self._db_writer.write(state)`; increment `written_count` on `True` return
-  - [ ] 5.4 Update cycle log format string: add `written={written_count}`
-  - [ ] 5.5 Verify: Groups A–D and V tests all pass with updated `__init__` signature (db_writer defaults to None — backward compat)
+- [x] **Task 5: Update `services/ingestor/ingestor/adapters/opensky.py`** (AC 5)
+  - [x] 5.1 Add `db_writer=None` as 4th parameter to `__init__`; store `self._db_writer = db_writer`
+  - [x] 5.2 Add `written_count = 0` to `run()` cycle initializers (alongside `success_count`, `skip_count`, `published_count`)
+  - [x] 5.3 After `_publish_state()` call in normalize loop: if `self._db_writer` is not None, call `await self._db_writer.write(state)`; increment `written_count` on `True` return
+  - [x] 5.4 Update cycle log format string: add `written={written_count}`
+  - [x] 5.5 Verify: Groups A–D and V tests all pass with updated `__init__` signature (db_writer defaults to None — backward compat)
 
-- [ ] **Task 6: Update `services/ingestor/pyproject.toml`** (AC 6)
-  - [ ] 6.1 Add `sqlalchemy[asyncio]>=2.0`, `asyncpg>=0.29`, `geoalchemy2>=0.14` to `[project] dependencies`
+- [x] **Task 6: Update `services/ingestor/pyproject.toml`** (AC 6)
+  - [x] 6.1 Add `sqlalchemy[asyncio]>=2.0`, `asyncpg>=0.29`, `geoalchemy2>=0.14` to `[project] dependencies`
 
-- [ ] **Task 7: Create `services/ingestor/tests/test_writer.py`** (AC 7)
-  - [ ] 7.1 Import `pytest`, `AsyncMock`, `MagicMock`, `EntityStateWriter`, `ComplianceGuard`, `ProviderConfig`, `NormalizedAdsbState`, `WKTElement`
-  - [ ] 7.2 Create helper fixtures: `make_state(icao24="abc123", latitude=37.0, longitude=-122.0, ...)`, `make_guard(write_raw=False)`, `make_session_factory()`
-  - [ ] 7.3 Write W1: one session.add call (entity_state only), returns True
-  - [ ] 7.4 Write W2: should_write_raw=True → two session.add calls
-  - [ ] 7.5 Write W3: should_write_raw=False → one session.add call, no RawAdsb added
-  - [ ] 7.6 Write W4: begin() raises → returns False, WARNING logged, no exception
-  - [ ] 7.7 Write W5: EntityState field assertions for provider, icao24, call_sign, altitude_ft, speed_knots, heading, observed_at; mmsi/flight_number/vessel_name all None
-  - [ ] 7.8 Write W6: latitude=None → position=None
-  - [ ] 7.9 Write W7: longitude=None → position=None
-  - [ ] 7.10 Write W8: both lat and lon present → position is WKTElement with `POINT(lon lat)` string
-  - [ ] 7.11 Write W9: entity_type is string `"adsb"`, not the enum object
-  - [ ] 7.12 Run full test suite: `pytest services/ingestor/tests/ -v` — all Groups A–D, H, V, W pass
+- [x] **Task 7: Create `services/ingestor/tests/test_writer.py`** (AC 7)
+  - [x] 7.1 Import `pytest`, `AsyncMock`, `MagicMock`, `EntityStateWriter`, `ComplianceGuard`, `ProviderConfig`, `NormalizedAdsbState`, `WKTElement`
+  - [x] 7.2 Create helper fixtures: `make_state(icao24="abc123", latitude=37.0, longitude=-122.0, ...)`, `make_guard(write_raw=False)`, `make_session_factory()`
+  - [x] 7.3 Write W1: one session.add call (entity_state only), returns True
+  - [x] 7.4 Write W2: should_write_raw=True → two session.add calls
+  - [x] 7.5 Write W3: should_write_raw=False → one session.add call, no RawAdsb added
+  - [x] 7.6 Write W4: begin() raises → returns False, WARNING logged, no exception
+  - [x] 7.7 Write W5: EntityState field assertions for provider, icao24, call_sign, altitude_ft, speed_knots, heading, observed_at; mmsi/flight_number/vessel_name all None
+  - [x] 7.8 Write W6: latitude=None → position=None
+  - [x] 7.9 Write W7: longitude=None → position=None
+  - [x] 7.10 Write W8: both lat and lon present → position is WKTElement with `POINT(lon lat)` string
+  - [x] 7.11 Write W9: entity_type is string `"adsb"`, not the enum object
+  - [x] 7.12 Run full test suite: `pytest services/ingestor/tests/ -v` — all Groups A–D, H, V, W pass
 
-- [ ] **Task 8: Local smoke test** (AC 8)
-  - [ ] 8.1 `pip install -e shared/ -e "services/ingestor[test]"` — installs sqlalchemy, asyncpg, geoalchemy2
-  - [ ] 8.2 Import smoke: `python -c "from ingestor.writer import EntityStateWriter; from ingestor.models import EntityState, RawAdsb; print('ok')"`
-  - [ ] 8.3 `pytest services/ingestor/tests/ -v` — all prior groups + new W group pass
-  - [ ] 8.4 With live PostgreSQL + Valkey, run `alembic upgrade head`, then `python -m ingestor.main`; verify `entity_states` rows after first cycle, `raw_adsb` empty, `written=N` in cycle log
+- [x] **Task 8: Local smoke test** (AC 8)
+  - [x] 8.1 `pip install -e shared/ -e "services/ingestor[test]"` — installs sqlalchemy, asyncpg, geoalchemy2
+  - [x] 8.2 Import smoke: `python -c "from ingestor.writer import EntityStateWriter; from ingestor.models import EntityState, RawAdsb; print('ok')"`
+  - [x] 8.3 `pytest services/ingestor/tests/ -v` — all prior groups + new W group pass
+  - [x] 8.4 With live PostgreSQL + Valkey, run `alembic upgrade head`, then `python -m ingestor.main`; verify `entity_states` rows after first cycle, `raw_adsb` empty, `written=N` in cycle log
 
 ---
 
@@ -589,3 +589,43 @@ For local dev (outside Docker Compose): set `POSTGRES_HOST=localhost` in `.env` 
 - [services/ingestor/pyproject.toml](../../services/ingestor/pyproject.toml) — dependencies to update
 - [migrations/versions/001_initial_schema.py](../../migrations/versions/001_initial_schema.py) — authoritative column definitions for `entity_states` and `raw_adsb`
 - [.env.example](../../.env.example) — POSTGRES_* vars confirmed present
+
+---
+
+## Dev Agent Record
+
+### Completion Notes
+
+**Initial implementation** completed 2026-03-11:
+- `models.py` created: `EntityState` and `RawAdsb` ORM mapped classes per AC 2 spec. No `create_all()`, no relationships, write-only use.
+- `writer.py` created: `EntityStateWriter` with one-time init WARNING for raw skip, `write()` atomic transaction, `_write_entity_state()` (WKT lon-lat order), `_write_raw_adsb()`.
+- `main.py` updated: `IngestorSettings` field replaced with individual POSTGRES_* fields + `database_url` property; engine + `async_sessionmaker` + `EntityStateWriter` wired conditionally; `db_writer` passed to adapter.
+- `opensky.py` updated: `db_writer=None` param added to `__init__`; `written_count` initialized in `run()`; write-after-publish call added; cycle log extended with `written={N}`.
+- `pyproject.toml` updated: `sqlalchemy[asyncio]>=2.0`, `asyncpg>=0.29`, `geoalchemy2>=0.14` added.
+- `tests/test_writer.py` created: Groups W1–W9 covering all `EntityStateWriter` paths using `AsyncMock` session — no live DB required.
+
+**Code-review fixes** applied 2026-03-11:
+- F1: Removed duplicate broad `except Exception` block from `writer.py` — only `except SQLAlchemyError` DB-failure handler retained.
+- F2: Corrected stale `run()` docstring in `opensky.py` — now correctly documents `self._db_writer` DB writes as a Story 3.4 responsibility.
+
+**Final DEV code review passed** 2026-03-11: F1 and F2 both confirmed resolved; no new issues introduced.
+
+### Manual Smoke Test — 2026-03-11 (Nikku, Windows local)
+
+Command: `PROVIDER=opensky python -m ingestor.main` from repo root in active venv, with PostgreSQL+PostGIS and Valkey running locally.
+
+Results:
+1. Startup succeeded with no `RuntimeError`.
+2. Log: `Compliance OK: limited_mode=True, should_write_raw=False, interval=0.20s`
+3. Log: `DB writer initialized: entity_states=enabled, raw_adsb=False`
+4. One-time writer warning: `raw_adsb writes disabled: limited_mode=True — terms_status=under_review for this provider`
+5. OpenSky token request succeeded.
+6. OpenSky states request succeeded.
+7. Cycle log: `Cycle complete: fetched=8036, normalized=8036, skipped=0, published=8036, written=8036`
+8. Manual DB check: `entity_states` count = 8036 ✅
+9. Manual DB check: `raw_adsb` count = 0 ✅ (compliance gate working)
+10. Manual DB check: `geography_entity_id` NULL on sampled rows ✅ (processor assigns — Epic 4)
+11. Process stopped with Ctrl+C. `CancelledError` during asyncio sleep + `KeyboardInterrupt` on exit — non-blocking expected asyncio.gather teardown behavior.
+12. Pydantic class-based config deprecation warning observed at startup — non-blocking pre-existing technical debt (carry-forward from Story 3.2).
+
+**Story 3.4 closed by Nikku after local validation (2026-03-11).**

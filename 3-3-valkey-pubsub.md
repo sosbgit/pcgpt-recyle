@@ -1,6 +1,6 @@
 # Story 3.3: Valkey Pub/Sub for Ingestor Output and Feed Heartbeat
 
-**Status:** ready-for-dev
+**Status:** done
 **Epic:** 3 — Live Feed Ingestion & Feed Health Visibility
 **Sprint sequence:** Third story of Epic 3; unblocks 3.4 (DB writes), 4.1 (Processor service — subscribes to entity events)
 
@@ -167,58 +167,58 @@ so that the processor service has a real-time pub/sub stream of entity events to
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Implement `services/ingestor/ingestor/health.py`** (AC 1)
-  - [ ] 1.1 Add module docstring explaining the heartbeat's role (passive staleness detection via key expiry)
-  - [ ] 1.2 Import `asyncio`, `logging`
-  - [ ] 1.3 Define `HEARTBEAT_INTERVAL_SECONDS = 15` and `HEARTBEAT_TTL_SECONDS = 30`
-  - [ ] 1.4 Define `FeedHeartbeatPublisher.__init__(self, redis_client, provider_name: str)`
-  - [ ] 1.5 Implement `async def run(self)`: setex loop with try/except, WARNING log on error, sleep
-  - [ ] 1.6 Verify `run()` never exits on transient error (exception handling covers all Redis exceptions + broad fallback)
+- [x] **Task 1: Implement `services/ingestor/ingestor/health.py`** (AC 1)
+  - [x] 1.1 Add module docstring explaining the heartbeat's role (passive staleness detection via key expiry)
+  - [x] 1.2 Import `asyncio`, `logging`
+  - [x] 1.3 Define `HEARTBEAT_INTERVAL_SECONDS = 15` and `HEARTBEAT_TTL_SECONDS = 30`
+  - [x] 1.4 Define `FeedHeartbeatPublisher.__init__(self, redis_client, provider_name: str)`
+  - [x] 1.5 Implement `async def run(self)`: setex loop with try/except, WARNING log on error, sleep
+  - [x] 1.6 Verify `run()` never exits on transient error (exception handling covers all Redis exceptions + broad fallback)
 
-- [ ] **Task 2: Update `services/ingestor/ingestor/adapters/opensky.py`** (AC 2)
-  - [ ] 2.1 Add `ENTITY_STATE_TTL_SECONDS: int = 7200` constant after existing constants block
-  - [ ] 2.2 Add `NormalizedAdsbState` to existing imports from `ingestor.normalizer` (needed for type hint in `_publish_state`)
-  - [ ] 2.3 Extend `__init__` signature: add `redis_client=None` as 3rd parameter; store `self._redis = redis_client`
-  - [ ] 2.4 Implement `async def _publish_state(self, state: NormalizedAdsbState) -> None`: None guard, model_dump_json(exclude={"raw_payload"}), setex + publish, WARNING on error
-  - [ ] 2.5 Update `run()` normalize loop: call `await self._publish_state(state)` after each successful `normalize_adsb()`; track `published_count`
-  - [ ] 2.6 Update cycle log format string to include `published={published_count}`
-  - [ ] 2.7 Update module docstring: remove "Story 3.3" deferral note; replace with "Story 3.3: Valkey publish wired"
-  - [ ] 2.8 Verify: no change to `_acquire_token()`, `fetch()`, or the backoff retry logic
+- [x] **Task 2: Update `services/ingestor/ingestor/adapters/opensky.py`** (AC 2)
+  - [x] 2.1 Add `ENTITY_STATE_TTL_SECONDS: int = 7200` constant after existing constants block
+  - [x] 2.2 Add `NormalizedAdsbState` to existing imports from `ingestor.normalizer` (needed for type hint in `_publish_state`)
+  - [x] 2.3 Extend `__init__` signature: add `redis_client=None` as 3rd parameter; store `self._redis = redis_client`
+  - [x] 2.4 Implement `async def _publish_state(self, state: NormalizedAdsbState) -> None`: None guard, model_dump_json(exclude={"raw_payload"}), setex + publish, WARNING on error
+  - [x] 2.5 Update `run()` normalize loop: call `await self._publish_state(state)` after each successful `normalize_adsb()`; track `published_count`
+  - [x] 2.6 Update cycle log format string to include `published={published_count}`
+  - [x] 2.7 Update module docstring: remove "Story 3.3" deferral note; replace with "Story 3.3: Valkey publish wired"
+  - [x] 2.8 Verify: no change to `_acquire_token()`, `fetch()`, or the backoff retry logic
 
-- [ ] **Task 3: Update `services/ingestor/ingestor/main.py`** (AC 3)
-  - [ ] 3.1 Add `import redis.asyncio as aioredis` import
-  - [ ] 3.2 Add `from ingestor.health import FeedHeartbeatPublisher` import
-  - [ ] 3.3 In `main()`: after compliance gate, create `redis_client = aioredis.Redis(host=..., port=..., decode_responses=True)`
-  - [ ] 3.4 Pass `redis_client` as 3rd arg to `adapter_class(config, settings, redis_client)`
-  - [ ] 3.5 Create `heartbeat = FeedHeartbeatPublisher(redis_client, settings.provider)`
-  - [ ] 3.6 Replace `await adapter.run()` with `await asyncio.gather(adapter.run(), heartbeat.run())`
-  - [ ] 3.7 Verify: all other `main()` logic unchanged (settings, registry, compliance, log setup)
+- [x] **Task 3: Update `services/ingestor/ingestor/main.py`** (AC 3)
+  - [x] 3.1 Add `import redis.asyncio as aioredis` import
+  - [x] 3.2 Add `from ingestor.health import FeedHeartbeatPublisher` import
+  - [x] 3.3 In `main()`: after compliance gate, create `redis_client = aioredis.Redis(host=..., port=..., decode_responses=True)`
+  - [x] 3.4 Pass `redis_client` as 3rd arg to `adapter_class(config, settings, redis_client)`
+  - [x] 3.5 Create `heartbeat = FeedHeartbeatPublisher(redis_client, settings.provider)`
+  - [x] 3.6 Replace `await adapter.run()` with `await asyncio.gather(adapter.run(), heartbeat.run())`
+  - [x] 3.7 Verify: all other `main()` logic unchanged (settings, registry, compliance, log setup)
 
-- [ ] **Task 4: Update `services/ingestor/pyproject.toml`** (AC 4)
-  - [ ] 4.1 Add `redis>=5.0` to `[project] dependencies`
+- [x] **Task 4: Update `services/ingestor/pyproject.toml`** (AC 4)
+  - [x] 4.1 Add `redis>=5.0` to `[project] dependencies`
 
-- [ ] **Task 5: Create `services/ingestor/tests/test_feed_heartbeat.py`** (AC 5)
-  - [ ] 5.1 Import `pytest`, `AsyncMock`, `FeedHeartbeatPublisher`, `HEARTBEAT_INTERVAL_SECONDS`, `HEARTBEAT_TTL_SECONDS`
-  - [ ] 5.2 Write H1: mock redis → verify `setex("feed:health:opensky", 30, "alive")` called
-  - [ ] 5.3 Write H2: mock sleep → verify called with `HEARTBEAT_INTERVAL_SECONDS`
-  - [ ] 5.4 Write H3: setex raises `ConnectionError` → loop continues, second setex called, no exception propagated
-  - [ ] 5.5 Write H4: constant value assertions
+- [x] **Task 5: Create `services/ingestor/tests/test_feed_heartbeat.py`** (AC 5)
+  - [x] 5.1 Import `pytest`, `AsyncMock`, `FeedHeartbeatPublisher`, `HEARTBEAT_INTERVAL_SECONDS`, `HEARTBEAT_TTL_SECONDS`
+  - [x] 5.2 Write H1: mock redis → verify `setex("feed:health:opensky", 30, "alive")` called
+  - [x] 5.3 Write H2: mock sleep → verify called with `HEARTBEAT_INTERVAL_SECONDS`
+  - [x] 5.4 Write H3: setex raises `ConnectionError` → loop continues, second setex called, no exception propagated
+  - [x] 5.5 Write H4: constant value assertions
 
-- [ ] **Task 6: Update `services/ingestor/tests/test_opensky_adapter.py`** (AC 6)
-  - [ ] 6.1 Add `import redis.exceptions` (or mock redis errors via `Exception` subclass) for error simulation
-  - [ ] 6.2 Write V1: `_publish_state()` → setex key/TTL/payload verification; confirm `raw_payload` absent from payload JSON
-  - [ ] 6.3 Write V2: `_publish_state()` → publish channel/payload verification
-  - [ ] 6.4 Write V3: adapter with `redis_client=None` → `_publish_state()` returns cleanly, no error
-  - [ ] 6.5 Write V4: setex raises → warning logged, other records in batch not blocked
-  - [ ] 6.6 Write V5: cycle log with mock redis → `published=2` in log output
-  - [ ] 6.7 Write V6: payload JSON parse → field presence/absence assertions
-  - [ ] 6.8 Verify all prior Story 3.2 tests (Groups A–D) still pass with updated `__init__` signature (they call without `redis_client` → defaults to None)
+- [x] **Task 6: Update `services/ingestor/tests/test_opensky_adapter.py`** (AC 6)
+  - [x] 6.1 Add `import redis.exceptions` (or mock redis errors via `Exception` subclass) for error simulation
+  - [x] 6.2 Write V1: `_publish_state()` → setex key/TTL/payload verification; confirm `raw_payload` absent from payload JSON
+  - [x] 6.3 Write V2: `_publish_state()` → publish channel/payload verification
+  - [x] 6.4 Write V3: adapter with `redis_client=None` → `_publish_state()` returns cleanly, no error
+  - [x] 6.5 Write V4: setex raises → warning logged, other records in batch not blocked
+  - [x] 6.6 Write V5: cycle log with mock redis → `published=2` in log output
+  - [x] 6.7 Write V6: payload JSON parse → field presence/absence assertions
+  - [x] 6.8 Verify all prior Story 3.2 tests (Groups A–D) still pass with updated `__init__` signature (they call without `redis_client` → defaults to None)
 
-- [ ] **Task 7: Local smoke test** (AC 7)
-  - [ ] 7.1 `pip install -e shared/ -e services/ingestor[test]` — adds `redis>=5.0`
-  - [ ] 7.2 Import smoke: `python -c "import redis.asyncio; from ingestor.health import FeedHeartbeatPublisher; print('ok')"`
-  - [ ] 7.3 `pytest services/ingestor/tests/ -v` — all tests green (Groups A–D from 3.2, H, V)
-  - [ ] 7.4 With live Valkey: `python -m ingestor.main` → verify heartbeat key and entity keys in Valkey after first cycle
+- [x] **Task 7: Local smoke test** (AC 7)
+  - [x] 7.1 `pip install -e shared/ -e services/ingestor[test]` — adds `redis>=5.0`
+  - [x] 7.2 Import smoke: `python -c "import redis.asyncio; from ingestor.health import FeedHeartbeatPublisher; print('ok')"`
+  - [x] 7.3 `pytest services/ingestor/tests/ -v` — all tests green (Groups A–D from 3.2, H, V)
+  - [x] 7.4 With live Valkey: `python -m ingestor.main` → verify heartbeat key and entity keys in Valkey after first cycle
 
 ---
 
@@ -479,4 +479,52 @@ All required env vars are **already declared** in `.env.example` and `IngestorSe
 
 ## Dev Agent Record
 
-_(To be completed by the dev agent after implementation)_
+**Closed:** 2026-03-11 by Nikku after local validation.
+
+### Implementation Summary
+
+| Phase | Outcome |
+|---|---|
+| Initial implementation | Completed — all ACs implemented as specified |
+| Code-review fixes | Applied — all review findings resolved |
+| `published_count` success tracking fix | Applied — count increments only on successful publish, not per call |
+| One-time no-redis debug log fix | Applied — DEBUG note emitted once per cycle when `redis_client=None` |
+| Unit tests (Groups H, V) | All passing; Groups A–D from Story 3.2 unaffected |
+| Manual smoke test | Passed — live OpenSky + local Valkey, 2026-03-11 |
+
+### Manual Smoke Test Results (2026-03-11, Nikku)
+
+Ran `PROVIDER=opensky python -m ingestor.main` from repo root in the active venv.
+
+1. Startup succeeded with no `RuntimeError`.
+2. Log showed: `Compliance OK: limited_mode=True, should_write_raw=False, interval=0.20s`
+3. OpenSky token request succeeded (HTTP 200).
+4. OpenSky states request succeeded (HTTP 200).
+5. Adapter logged: `Cycle complete: fetched=10734, normalized=10734, skipped=0, published=10734`
+6. While ingestor was running: `TTL feed:health:opensky` returned a positive TTL; `GET feed:health:opensky` returned `alive`.
+7. While ingestor was running: an `entity:adsb:*` key existed with positive TTL (~7200s).
+8. Retrieved entity payload from Valkey; confirmed `raw_payload` was **not present** in the JSON.
+9. Process stopped manually with Ctrl+C.
+10. Shutdown produced `CancelledError` during asyncio sleep followed by `KeyboardInterrupt` on exit — **non-blocking**, expected behavior for `asyncio.gather` teardown.
+11. Pydantic deprecation warning about class-based config observed at startup — **non-blocking**, pre-existing technical debt from Story 3.2, not a Story 3.3 blocker.
+
+### Files Changed
+
+```
+services/ingestor/
+├── pyproject.toml                    ← UPDATED: redis>=5.0 added
+└── ingestor/
+    ├── main.py                       ← UPDATED: redis client, FeedHeartbeatPublisher, asyncio.gather
+    ├── health.py                     ← IMPLEMENTED (was empty stub)
+    └── adapters/
+        └── opensky.py                ← UPDATED: redis_client param, _publish_state(), run() publish + count
+
+services/ingestor/tests/
+├── test_feed_heartbeat.py            ← CREATED (Groups H1–H4)
+└── test_opensky_adapter.py           ← UPDATED (Groups V1–V6 added; Groups A–D preserved)
+```
+
+### Carry-Forward Technical Debt
+
+- **Pydantic class-based config deprecation** — `IngestorSettings` uses `class Config:` (v1 style). Non-blocking. Deferred; not scoped to any specific story.
+- **Ctrl+C shutdown traceback** — `CancelledError` + `KeyboardInterrupt` on graceful stop via `asyncio.gather`. Non-blocking. Signal handling hardening is out of scope for ingestor stories.

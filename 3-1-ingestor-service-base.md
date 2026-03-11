@@ -1,6 +1,6 @@
 # Story 3.1: Ingestor Service Base
 
-**Status:** ready-for-dev
+**Status:** done
 **Epic:** 3 — Live Feed Ingestion & Feed Health Visibility
 **Sprint sequence:** First story of Epic 3; unblocks 3.2, 3.3, 3.4
 
@@ -132,74 +132,74 @@ so that provider adapters (OpenSky — Story 3.2, ADS-B Exchange — Story 9.1, 
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Create `services/ingestor/ingestor/base.py`** (AC 1)
-  - [ ] 1.1 Import `ABC`, `abstractmethod` from `abc`; import `ClassVar` from `typing`
-  - [ ] 1.2 Import `ProviderConfig` from `ingestor.compliance` (forward-safe: compliance.py has no import from base.py)
-  - [ ] 1.3 Import `FeedTypeEnum` from `schema.enums`
-  - [ ] 1.4 Define `BaseIngestor(ABC)` with `provider_name: ClassVar[str]` and `feed_type: ClassVar[FeedTypeEnum]`
-  - [ ] 1.5 Define `__init__(self, config: ProviderConfig) -> None` storing `self.config`
-  - [ ] 1.6 Define `@abstractmethod async def fetch(self) -> list[dict]` with docstring
-  - [ ] 1.7 Define `@abstractmethod async def run(self) -> None` with docstring noting "Story 3.2 implements the continuous loop"
+- [x] **Task 1: Create `services/ingestor/ingestor/base.py`** (AC 1)
+  - [x]1.1 Import `ABC`, `abstractmethod` from `abc`; import `ClassVar` from `typing`
+  - [x]1.2 Import `ProviderConfig` from `ingestor.compliance` (forward-safe: compliance.py has no import from base.py)
+  - [x]1.3 Import `FeedTypeEnum` from `schema.enums`
+  - [x]1.4 Define `BaseIngestor(ABC)` with `provider_name: ClassVar[str]` and `feed_type: ClassVar[FeedTypeEnum]`
+  - [x]1.5 Define `__init__(self, config: ProviderConfig) -> None` storing `self.config`
+  - [x]1.6 Define `@abstractmethod async def fetch(self) -> list[dict]` with docstring
+  - [x]1.7 Define `@abstractmethod async def run(self) -> None` with docstring noting "Story 3.2 implements the continuous loop"
 
-- [ ] **Task 2: Implement `services/ingestor/ingestor/compliance.py`** (AC 2)
-  - [ ] 2.1 Import `Literal`, `Optional` from `typing`; import `BaseModel` from `pydantic`
-  - [ ] 2.2 Define `ProviderConfig(BaseModel)` with all 5 fields (rate_limit_rps, storage_allowed, retention_hours, commercial_use_allowed, terms_status)
-  - [ ] 2.3 Define `ComplianceGuard.__init__(self, config: ProviderConfig)`
-  - [ ] 2.4 Define `validate_startup()` — raises `RuntimeError` if `storage_allowed is False`
-  - [ ] 2.5 Define `is_limited_mode()` — True when `terms_status in ("under_review", "restricted")`
-  - [ ] 2.6 Define `should_write_raw()` — True when `storage_allowed and not is_limited_mode()`
-  - [ ] 2.7 Define `rate_limit_interval()` — returns `1.0 / self.config.rate_limit_rps`
-  - [ ] 2.8 Add module-level docstring documenting the first-class compliance design intent
+- [x] **Task 2: Implement `services/ingestor/ingestor/compliance.py`** (AC 2)
+  - [x]2.1 Import `Literal`, `Optional` from `typing`; import `BaseModel` from `pydantic`
+  - [x]2.2 Define `ProviderConfig(BaseModel)` with all 5 fields (rate_limit_rps, storage_allowed, retention_hours, commercial_use_allowed, terms_status)
+  - [x]2.3 Define `ComplianceGuard.__init__(self, config: ProviderConfig)`
+  - [x]2.4 Define `validate_startup()` — raises `RuntimeError` if `storage_allowed is False`
+  - [x]2.5 Define `is_limited_mode()` — True when `terms_status in ("under_review", "restricted")`
+  - [x]2.6 Define `should_write_raw()` — True when `storage_allowed and not is_limited_mode()`
+  - [x]2.7 Define `rate_limit_interval()` — returns `1.0 / self.config.rate_limit_rps`
+  - [x]2.8 Add module-level docstring documenting the first-class compliance design intent
 
-- [ ] **Task 3: Create `services/ingestor/ingestor/normalizer.py`** (AC 3)
-  - [ ] 3.1 Import `datetime`, `UTC` from `datetime`; `Optional` from `typing`; `BaseModel` from `pydantic`
-  - [ ] 3.2 Import `FeedTypeEnum` from `schema.enums`
-  - [ ] 3.3 Define `NormalizedAdsbState(BaseModel)` with all fields per AC 3
-  - [ ] 3.4 Implement `normalize_adsb(raw: dict, provider: str, received_at: datetime) -> NormalizedAdsbState`
-  - [ ] 3.5 Altitude conversion: `geo_altitude * 3.28084` rounded to 1 decimal
-  - [ ] 3.6 Speed conversion: `velocity * 1.94384` rounded to 1 decimal
-  - [ ] 3.7 Timestamp: `datetime.fromtimestamp(time_position, tz=UTC)` with fallback to `received_at`
-  - [ ] 3.8 call_sign: strip whitespace; None if empty string
-  - [ ] 3.9 Raise `ValueError` if `icao24` absent or falsy
-  - [ ] 3.10 `geography_entity_id` always `None` — add inline comment explaining the processor handles geospatial matching
+- [x] **Task 3: Create `services/ingestor/ingestor/normalizer.py`** (AC 3)
+  - [x]3.1 Import `datetime`, `UTC` from `datetime`; `Optional` from `typing`; `BaseModel` from `pydantic`
+  - [x]3.2 Import `FeedTypeEnum` from `schema.enums`
+  - [x]3.3 Define `NormalizedAdsbState(BaseModel)` with all fields per AC 3
+  - [x]3.4 Implement `normalize_adsb(raw: dict, provider: str, received_at: datetime) -> NormalizedAdsbState`
+  - [x]3.5 Altitude conversion: `geo_altitude * 3.28084` rounded to 1 decimal
+  - [x]3.6 Speed conversion: `velocity * 1.94384` rounded to 1 decimal
+  - [x]3.7 Timestamp: `datetime.fromtimestamp(time_position, tz=UTC)` with fallback to `received_at`
+  - [x]3.8 call_sign: strip whitespace; None if empty string
+  - [x]3.9 Raise `ValueError` if `icao24` absent or falsy
+  - [x]3.10 `geography_entity_id` always `None` — add inline comment explaining the processor handles geospatial matching
 
-- [ ] **Task 4: Replace `services/ingestor/ingestor/main.py`** (AC 4)
-  - [ ] 4.1 Import `asyncio`, `logging`; import `BaseSettings` from `pydantic_settings`
-  - [ ] 4.2 Import `BaseIngestor` from `ingestor.base`; import `ProviderConfig`, `ComplianceGuard` from `ingestor.compliance`
-  - [ ] 4.3 Define `IngestorSettings(BaseSettings)` with all env vars per AC 4
-  - [ ] 4.4 Define `PROVIDER_DEFAULTS: dict[str, dict]` with OpenSky rate-limit and compliance defaults (see Dev Notes) — used to build `ProviderConfig` per provider
-  - [ ] 4.5 Define `PROVIDER_REGISTRY: dict[str, type[BaseIngestor]] = {}`
-  - [ ] 4.6 Implement `async def main()` with steps: load settings → lookup registry → build config → validate startup → instantiate → run
-  - [ ] 4.7 Add clear `RuntimeError` message when provider not in registry (not a bare KeyError)
-  - [ ] 4.8 Set up stdlib `logging` at the configured level before the startup sequence
+- [x] **Task 4: Replace `services/ingestor/ingestor/main.py`** (AC 4)
+  - [x]4.1 Import `asyncio`, `logging`; import `BaseSettings` from `pydantic_settings`
+  - [x]4.2 Import `BaseIngestor` from `ingestor.base`; import `ProviderConfig`, `ComplianceGuard` from `ingestor.compliance`
+  - [x]4.3 Define `IngestorSettings(BaseSettings)` with all env vars per AC 4
+  - [x]4.4 Define `PROVIDER_DEFAULTS: dict[str, dict]` with OpenSky rate-limit and compliance defaults (see Dev Notes) — used to build `ProviderConfig` per provider
+  - [x]4.5 Define `PROVIDER_REGISTRY: dict[str, type[BaseIngestor]] = {}`
+  - [x]4.6 Implement `async def main()` with steps: load settings → lookup registry → build config → validate startup → instantiate → run
+  - [x]4.7 Add clear `RuntimeError` message when provider not in registry (not a bare KeyError)
+  - [x]4.8 Set up stdlib `logging` at the configured level before the startup sequence
 
-- [ ] **Task 5: Update `services/ingestor/ingestor/adapters/__init__.py`** (AC 5)
-  - [ ] 5.1 Replace empty file with comment block documenting the expected import pattern for Story 3.2
+- [x] **Task 5: Update `services/ingestor/ingestor/adapters/__init__.py`** (AC 5)
+  - [x]5.1 Replace empty file with comment block documenting the expected import pattern for Story 3.2
 
-- [ ] **Task 6: Update `services/ingestor/pyproject.toml`** (AC 6)
-  - [ ] 6.1 Add `pydantic-settings>=2.0` to `[project] dependencies`
+- [x] **Task 6: Update `services/ingestor/pyproject.toml`** (AC 6)
+  - [x]6.1 Add `pydantic-settings>=2.0` to `[project] dependencies`
 
-- [ ] **Task 7: Create `services/ingestor/tests/` and write tests** (AC 7)
-  - [ ] 7.1 Create `services/ingestor/tests/__init__.py` (empty)
-  - [ ] 7.2 Create `services/ingestor/tests/test_normalizer.py`:
-    - [ ] 7.2a Full valid record test (all conversions verified)
-    - [ ] 7.2b Missing icao24 → ValueError
-    - [ ] 7.2c `time_position=None` fallback to `received_at`
-    - [ ] 7.2d `geo_altitude=None` → `altitude_ft=None`
-    - [ ] 7.2e `velocity=None` → `speed_knots=None`
-    - [ ] 7.2f `geography_entity_id` is always `None`
-  - [ ] 7.3 Create `services/ingestor/tests/test_compliance.py`:
-    - [ ] 7.3a `storage_allowed=False` → `validate_startup()` raises `RuntimeError`
-    - [ ] 7.3b `terms_status="under_review"` → `is_limited_mode()` True
-    - [ ] 7.3c `terms_status="compliant"` → `is_limited_mode()` False
-    - [ ] 7.3d limited mode → `should_write_raw()` False
-    - [ ] 7.3e compliant + storage_allowed → `should_write_raw()` True
-    - [ ] 7.3f `rate_limit_rps=5.0` → `rate_limit_interval()` == 0.2
+- [x] **Task 7: Create `services/ingestor/tests/` and write tests** (AC 7)
+  - [x]7.1 Create `services/ingestor/tests/__init__.py` (empty)
+  - [x]7.2 Create `services/ingestor/tests/test_normalizer.py`:
+    - [x]7.2a Full valid record test (all conversions verified)
+    - [x]7.2b Missing icao24 → ValueError
+    - [x]7.2c `time_position=None` fallback to `received_at`
+    - [x]7.2d `geo_altitude=None` → `altitude_ft=None`
+    - [x]7.2e `velocity=None` → `speed_knots=None`
+    - [x]7.2f `geography_entity_id` is always `None`
+  - [x]7.3 Create `services/ingestor/tests/test_compliance.py`:
+    - [x]7.3a `storage_allowed=False` → `validate_startup()` raises `RuntimeError`
+    - [x]7.3b `terms_status="under_review"` → `is_limited_mode()` True
+    - [x]7.3c `terms_status="compliant"` → `is_limited_mode()` False
+    - [x]7.3d limited mode → `should_write_raw()` False
+    - [x]7.3e compliant + storage_allowed → `should_write_raw()` True
+    - [x]7.3f `rate_limit_rps=5.0` → `rate_limit_interval()` == 0.2
 
-- [ ] **Task 8: Smoke test** (AC 8)
-  - [ ] 8.1 `pip install -e services/ingestor/` in repo venv with shared already installed
-  - [ ] 8.2 Import smoke test passes (see AC 8)
-  - [ ] 8.3 `pytest services/ingestor/tests/ -v` passes (all tests green, no DB or Valkey needed)
+- [x] **Task 8: Smoke test** (AC 8)
+  - [x]8.1 `pip install -e services/ingestor/` in repo venv with shared already installed
+  - [x]8.2 Import smoke test passes (see AC 8)
+  - [x]8.3 `pytest services/ingestor/tests/ -v` passes (all tests green, no DB or Valkey needed)
 
 ---
 
@@ -421,3 +421,52 @@ class IngestorSettings(BaseSettings):
 - [services/ingestor/ingestor/compliance.py](../../services/ingestor/ingestor/compliance.py) — existing stub
 - [services/ingestor/ingestor/main.py](../../services/ingestor/ingestor/main.py) — existing stub (replace)
 - [.env.example](../../.env.example) — `PROVIDER`, `OPENSKY_USERNAME`, `OPENSKY_PASSWORD` env vars
+
+---
+
+## Dev Agent Record
+
+### Completion Notes
+
+| Date | Event |
+|---|---|
+| 2026-03-11 | Initial implementation completed (all Tasks 1–8) |
+| 2026-03-11 | Code-review fixes applied; final DEV code review passed |
+| 2026-03-11 | Windows packaging fix applied after smoke test failure (see Implementation Correction below) |
+| 2026-03-11 | Manual smoke test passed locally |
+| 2026-03-11 | Story 3.1 closed by Nikku after local validation |
+
+### Implementation Correction — Windows Packaging Fix
+
+**Original AC 6 spec:** `panoptes-shared @ file://../../shared` (PEP 440 direct-reference form)
+
+**Issue:** During manual smoke test on Windows (`pip install -e shared/ -e services/ingestor[test]`), the `file://../../shared` path reference in `pyproject.toml` caused pip to fail — Windows path resolution of relative `file://` URLs is unreliable in editable installs.
+
+**Resolution:** Dependency changed to bare name `panoptes-shared`. This is correct when `pip install -e shared/` is run first (shared package is already present in the venv by name). The install sequence documented in AC 8 (`pip install -e shared/ -e services/ingestor[test]`) is the canonical install path and works cleanly with the bare name.
+
+**Classification:** Resolved implementation correction. Not an open issue. AC 6 original spec text is retained for historical accuracy; actual shipped `pyproject.toml` uses `panoptes-shared`.
+
+### Manual Smoke Test Results (2026-03-11, Windows)
+
+1. `pip install -e shared/ -e services/ingestor[test]` from repo root — **passed**
+2. `python -c "from ingestor.base import BaseIngestor; from ingestor.normalizer import normalize_adsb, NormalizedAdsbState; from ingestor.compliance import ProviderConfig, ComplianceGuard; print('ok')"` — printed `ok`
+3. `pytest services/ingestor/tests/ -v` — **43/43 passed**
+
+### Files Changed
+
+```
+services/ingestor/
+├── pyproject.toml                   ← UPDATED: pydantic-settings>=2.0; bare panoptes-shared dep
+└── ingestor/
+    ├── main.py                      ← REPLACED: full startup sequence
+    ├── base.py                      ← CREATED
+    ├── normalizer.py                ← CREATED
+    ├── compliance.py                ← POPULATED (was empty stub)
+    └── adapters/
+        └── __init__.py              ← UPDATED: adapter import pattern comment
+
+services/ingestor/tests/
+├── __init__.py                      ← CREATED
+├── test_normalizer.py               ← CREATED (28 tests)
+└── test_compliance.py               ← CREATED (15 tests)
+```
