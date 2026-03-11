@@ -69,8 +69,8 @@ development_status:
   epic-3: in-progress
   3-1-ingestor-service-base: done
   3-2-opensky-adapter: done
-  3-3-valkey-pubsub: ready-for-dev
-  3-4-entity-state-db-writes: backlog
+  3-3-valkey-pubsub: done
+  3-4-entity-state-db-writes: ready-for-dev
   3-5-feed-health-api: backlog
   3-6-feed-health-signal-desk: backlog
   epic-3-retrospective: optional
@@ -145,6 +145,19 @@ development_status:
 
 # ─── Carry-Forward Notes ───────────────────────────────────────────────────
 carry_forward_notes:
+  - story: 3-4-entity-state-db-writes
+    date: 2026-03-11
+    notes:
+      - "Story 3.4 created and ready-for-dev (2026-03-11, Bob/SM)."
+      - "Scope: models.py (EntityState + RawAdsb ORM), writer.py (EntityStateWriter), main.py (IngestorSettings postgres vars + engine + session factory + writer), opensky.py (db_writer param + write() call + written_count), pyproject.toml (sqlalchemy[asyncio]>=2.0, asyncpg>=0.29, geoalchemy2>=0.14)."
+      - "Key compliance rule: entity_states ALWAYS written; raw_adsb gated by should_write_raw() — currently False for OpenSky (terms_status=under_review). Do NOT change PROVIDER_DEFAULTS."
+      - "IngestorSettings: existing database_url Optional[str] field replaced with individual POSTGRES_* fields + database_url property (mirrors API config.py pattern). No new env vars needed — .env.example POSTGRES_* vars already present."
+      - "PostGIS WKTElement: POINT(longitude latitude) — longitude first. Swapping is a silent data corruption bug."
+      - "geography_entity_id is always NULL from ingestor — processor assigns via geospatial watch-matching (Epic 4)."
+      - "write() transaction: entity_states + raw_adsb (if permitted) in one atomic begin(). Failure is non-fatal — loop continues."
+      - "Cycle log extended: written={N} added alongside published={N}."
+      - "Unblocks: 3.5 (feed health API), 4.1 (Processor reads entity_states for baseline)."
+
   - story: 3-3-valkey-pubsub
     date: 2026-03-11
     notes:
@@ -157,6 +170,11 @@ carry_forward_notes:
       - "For local dev smoke test: override VALKEY_HOST=localhost (Docker default is 'valkey')."
       - "redis_client=None is a valid no-op path — ensures backward compat with all 3.2 tests."
       - "Unblocks: 3.4 (DB writes), 4.1 (Processor — subscribes to entity:adsb:* channel)."
+      - "Initial implementation completed; code-review fixes applied; published_count success tracking fix applied; one-time no-redis debug fix applied."
+      - "Manual smoke test passed locally on Windows with live OpenSky + Valkey (Nikku, 2026-03-11): fetched=10734, normalized=10734, published=10734; feed:health:opensky alive; entity:adsb:* keys present; raw_payload absent from payload."
+      - "Non-blocking: CancelledError/KeyboardInterrupt on Ctrl+C shutdown — expected asyncio.gather teardown behavior."
+      - "Non-blocking: Pydantic class-based config deprecation warning at startup — pre-existing technical debt from Story 3.2."
+      - "Story 3.3 closed by Nikku after local validation (2026-03-11)."
 
   - story: 3-2-opensky-adapter
     date: 2026-03-11
