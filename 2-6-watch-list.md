@@ -468,29 +468,29 @@ This story is frontend-only. No backend test changes.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Define status helper functions at module scope (AC: #1–#6, #7–#14)
-  - [ ] 1.1 Add `getStatusStripeColor(status, isActive)` — returns CSS var string; transparent for INACTIVE and unknown
-  - [ ] 1.2 Add `getStatusBadgeColor(status)` — returns CSS var string for badge text color
-  - [ ] 1.3 Add `getStatusLabel(status)` — returns uppercase display string; empty string for INACTIVE
+- [x] Task 1: Define status helper functions at module scope (AC: #1–#6, #7–#14)
+  - [x] 1.1 Add `getStatusStripeColor(status, isActive)` — returns CSS var string; transparent for INACTIVE and unknown
+  - [x] 1.2 Add `getStatusBadgeColor(status)` — returns CSS var string for badge text color
+  - [x] 1.3 Add `getStatusLabel(status)` — returns uppercase display string; empty string for INACTIVE
 
-- [ ] Task 2: Add `BaselineProgressBar` component inline (AC: #10, #11)
-  - [ ] 2.1 Implement `BASELINE_DAYS_ELAPSED = 0` constant (documented as placeholder for Epic 4)
-  - [ ] 2.2 Implement `BaselineProgressBar({ windowDays })` — 80px track, 4px height, `--accent-baseline` fill, `--border-subtle` track, `0/{windowDays}d` label at 10px monospace `--text-tertiary`
+- [x] Task 2: Add `BaselineProgressBar` component inline (AC: #10, #11)
+  - [x] 2.1 Implement `BASELINE_DAYS_ELAPSED = 0` constant (documented as placeholder for Epic 4)
+  - [x] 2.2 Implement `BaselineProgressBar({ windowDays })` — 80px track, 4px height, `--accent-baseline` fill, `--border-subtle` track, `0/{windowDays}d` label at 10px monospace `--text-tertiary`
 
-- [ ] Task 3: Update `WatchListRowProps` interface (AC: #19 — TypeScript build)
-  - [ ] 3.1 Remove `badge?: ReactNode` prop (2.2 seam retired)
-  - [ ] 3.2 Remove `ReactNode` import (no longer needed after badge removal)
+- [x] Task 3: Update `WatchListRowProps` interface (AC: #19 — TypeScript build)
+  - [x] 3.1 Remove `badge?: ReactNode` prop (2.2 seam retired)
+  - [x] 3.2 Remove `ReactNode` import (no longer needed after badge removal)
 
-- [ ] Task 4: Update `WatchListRow` component body (AC: #1–#18)
-  - [ ] 4.1 Compute derived values: `stripeColor`, `statusLabel`, `badgeColor`, `isBaseline`, `isInactive`, `textColor`, `subColor`
-  - [ ] 4.2 Replace `borderLeft` logic: `'3px solid {stripeColor}'` always (no selection conditional on stripe)
-  - [ ] 4.3 Replace `paddingLeft` logic: always `13px` (drop the `isSelected ? 13 : 16` conditional)
-  - [ ] 4.4 Add `background: isSelected ? 'var(--bg-raised)' : 'transparent'` — selection via background only (unchanged semantically, same as before)
-  - [ ] 4.5 Replace badge/status fallback block: render entity name + optional `·` separator + colored `statusLabel` span; skip badge block entirely when `statusLabel` is empty (INACTIVE)
-  - [ ] 4.6 Add `{isBaseline && <BaselineProgressBar windowDays={watch.baseline_window_days} />}` below secondary row
+- [x] Task 4: Update `WatchListRow` component body (AC: #1–#18)
+  - [x] 4.1 Compute derived values: `stripeColor`, `statusLabel`, `badgeColor`, `isBaseline`, `isInactive`, `textColor`, `subColor`
+  - [x] 4.2 Replace `borderLeft` logic: `'3px solid {stripeColor}'` always (no selection conditional on stripe)
+  - [x] 4.3 Replace `paddingLeft` logic: always `13px` (drop the `isSelected ? 13 : 16` conditional)
+  - [x] 4.4 Add `background: isSelected ? 'var(--bg-raised)' : 'transparent'` — selection via background only (unchanged semantically, same as before)
+  - [x] 4.5 Replace badge/status fallback block: render entity name + optional `·` separator + colored `statusLabel` span; skip badge block entirely when `statusLabel` is empty (INACTIVE)
+  - [x] 4.6 Add `{isBaseline && <BaselineProgressBar windowDays={watch.baseline_window_days} />}` below secondary row
 
 - [ ] Task 5: TypeScript compile + smoke test (AC: #19, #20)
-  - [ ] 5.1 `npm run build` — 0 TypeScript errors ✓
+  - [x] 5.1 `npm run build` — 0 TypeScript errors ✓ (156 modules, 1.29s)
   - [ ] 5.2 Start infra + API + cockpit dev server; navigate to `/watches`
   - [ ] 5.3 Verify all watch rows show status badges (colored text)
   - [ ] 5.4 Verify no amber left stripe anywhere; stripe color matches watch status
@@ -503,7 +503,28 @@ This story is frontend-only. No backend test changes.
 
 ## Dev Agent Record
 
-*(to be filled in by dev agent after implementation)*
+**Implemented by:** Amelia (dev agent, claude-sonnet-4-6) — 2026-03-11
+
+**Changes made — `services/cockpit/src/components/watch-config/WatchListRow.tsx` only:**
+
+1. Removed `import type { ReactNode } from 'react'` — no longer needed after badge prop removal
+2. Removed `badge?: ReactNode` prop from `WatchListRowProps` (2.2 seam retired, §4)
+3. Added `BASELINE_DAYS_ELAPSED = 0` module constant (Epic 4 placeholder)
+4. Added `WatchStatus` type alias for switch exhaustiveness
+5. Added `getStatusStripeColor(status, isActive)` — transparent for inactive/unknown, CSS var for known states
+6. Added `getStatusBadgeColor(status)` — CSS var per status
+7. Added `getStatusLabel(status)` — uppercase display string; empty string for inactive/unknown
+8. Added `BaselineProgressBar({ windowDays })` — 80px × 4px track, `--accent-baseline` fill, `--border-subtle` track, `0/{windowDays}d` label
+9. Replaced amber selection stripe with status-driven stripe: `borderLeft: '3px solid {stripeColor}'` always present
+10. Fixed padding: `'10px 12px 10px 13px'` always (dropped conditional `isSelected ? 13 : 16`)
+11. Selection feedback: background only — `isSelected ? 'var(--bg-raised)' : 'transparent'`
+12. Secondary row: `entityName · STATUSLABEL` (colored, uppercase) — `·` and label suppressed when `statusLabel` is empty (inactive rows)
+13. `BaselineProgressBar` rendered only when `!isInactive && isBaseline` (baseline_in_progress or created)
+14. Inactive behavior from 2.5 fully preserved: `is_active === false` wins over status for stripe, badge, dimming
+
+**Build result:** `tsc -b && vite build` — 0 errors, 156 modules, 1.29s
+
+**Files modified:** 1 — `WatchListRow.tsx` only
 
 ---
 
