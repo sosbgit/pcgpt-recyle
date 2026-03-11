@@ -198,6 +198,7 @@ carry_forward_notes:
       - "Backend baseline FSM (baseline → in_progress, superseded) deferred to Epic 4 / Story 4.3."
       - "Build: tsc -b && vite build → 155 modules, 0 errors."
       - "Only file modified: services/cockpit/src/components/watch-config/WatchFormPanel.tsx."
+      - "Smoke test manually verified by Nikku (2026-03-10). Compatible edits (name, threshold) produced no banners. Signal-family and baseline-window changes triggered amber banners and Save & Reset Baseline. Revert cleared both. Simultaneous incompatible changes handled correctly. Save succeeded. New-watch mode banner-free. At-least-one validation intact. Cancel reset cleanly. Story closed."
 
   - story: 2-2-watch-configuration-surface
     date: 2026-03-10

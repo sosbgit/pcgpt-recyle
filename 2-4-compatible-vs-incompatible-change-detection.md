@@ -484,12 +484,12 @@ This story is frontend-only. No backend test changes.
 
 - [x] Task 7: TypeScript compile + smoke test (AC: #14, #15)
   - [x] 7.1 `npm run build` — 155 modules, 0 TypeScript errors ✓
-  - [ ] 7.2 Start infra + API + cockpit dev server; perform full smoke test (Nikku)
-  - [ ] 7.3 Verify signal families warning: uncheck → banner appears; re-check → banner disappears; save → ✓ Saved → banner gone
-  - [ ] 7.4 Verify baseline window warning: change value → banner appears; revert → banner gone; save → ✓ Saved → banner gone
-  - [ ] 7.5 Verify compatible edits: name change, threshold change → no banners at any point
-  - [ ] 7.6 Verify new watch mode: no banners at any point
-  - [ ] 7.7 Verify `isSignalFamiliesEmpty` validation still works (all families unchecked → save disabled, error message shown)
+  - [x] 7.2 Start infra + API + cockpit dev server; perform full smoke test (Nikku)
+  - [x] 7.3 Verify signal families warning: uncheck → banner appears; re-check → banner disappears; save → ✓ Saved → banner gone
+  - [x] 7.4 Verify baseline window warning: change value → banner appears; revert → banner gone; save → ✓ Saved → banner gone
+  - [x] 7.5 Verify compatible edits: name change, threshold change → no banners at any point
+  - [x] 7.6 Verify new watch mode: no banners at any point
+  - [x] 7.7 Verify `isSignalFamiliesEmpty` validation still works (all families unchecked → save disabled, error message shown)
 
 ---
 
@@ -539,3 +539,4 @@ This story is frontend-only. No backend test changes.
 
 - 2026-03-10: Story 2.4 created by Bob (SM, claude-sonnet-4-6). Prerequisites confirmed: 1.1, 1.2, 1.3, 1.7, 1.8, 2.1, 2.2, 2.3 all done. Full SM ambiguity resolution documented (§1–§10). Field classification table authoritative. Story boundary callouts against 2.5, 2.6, Epic 4. Status: ready-for-dev.
 - 2026-03-10: Story 2.4 implemented by Amelia (Dev, claude-sonnet-4-6). `WatchFormPanel.tsx` modified only. Build: 155 modules, 0 errors. Status: done (pending Nikku smoke test 7.2–7.7).
+- 2026-03-10: Story 2.4 smoke test passed manually by Nikku. All AC 15 scenarios verified: compatible edits (name, threshold) showed no banners; signal-family and baseline-window changes triggered amber banners and Save & Reset Baseline label; revert cleared banners; simultaneous incompatible changes showed both banners; save succeeded with ✓ Saved; new-watch mode showed no banners; at-least-one signal-family validation still functional; cancel reset all incompatible edits cleanly. Story closed.
