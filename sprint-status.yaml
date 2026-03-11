@@ -157,7 +157,7 @@ carry_forward_notes:
     date: 2026-03-10
     notes:
       - "Story 1.8 passed remediation re-review. All 5 patched items verified clean (M1/M2/M3/M4/L2)."
-      - "M1: AC #11 smoke-test startup commands match repo layout — cd services/api required before uvicorn."
+      - "M1: AC #11 smoke-test startup commands match repo layout — run from repo root: uvicorn services.api.api.main:app --reload --host 0.0.0.0 --port 8000 --env-file .env"
       - "M2: Queued axios retries set _retry=true before replay — loop guard covers both primary and queued paths."
       - "M3: tryRestoreSession() deduplicated via module-level promise cache — React 18 StrictMode safe."
       - "M4: apiClient has no baseURL — relative /api/v1/... paths proxied via Vite (dev) / nginx (prod)."
