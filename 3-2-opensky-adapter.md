@@ -1,6 +1,6 @@
 # Story 3.2: OpenSky Adapter
 
-**Status:** ready-for-dev
+**Status:** done
 **Epic:** 3 — Live Feed Ingestion & Feed Health Visibility
 **Sprint sequence:** Second story of Epic 3; unblocks 3.3 (Valkey pub/sub), 3.4 (DB writes)
 
@@ -41,11 +41,12 @@ so that the system collects live ADS-B data from day one without operator babysi
   - `feed_type: ClassVar[FeedTypeEnum] = FeedTypeEnum.adsb`
   - `__init__(self, config: ProviderConfig, settings=None) -> None`:
     - Calls `super().__init__(config)` to store `self.config`.
-    - Extracts `opensky_username` and `opensky_password` from `settings` using `getattr(settings, "opensky_username", None)` and `getattr(settings, "opensky_password", None)`.
-    - Builds `self._auth: Optional[httpx.BasicAuth]` — `httpx.BasicAuth(username, password)` if `username` is truthy; `None` otherwise. This preserves anonymous / homelab posture when env vars are empty.
+    - Extracts `opensky_client_id` and `opensky_client_secret` from `settings` using `getattr(settings, "opensky_client_id", None)` and `getattr(settings, "opensky_client_secret", None)`.
+    - Stores `self._client_id: Optional[str]` and `self._client_secret: Optional[str]`.
+    - Stores `self._bearer_token: Optional[str] = None` — token is acquired via OAuth2 client credentials flow before the first authenticated request and refreshed on `401` responses.
     - Creates `self._client: httpx.AsyncClient` with:
-      - `auth=self._auth` (None if anonymous)
       - `timeout=httpx.Timeout(OPENSKY_REQUEST_TIMEOUT_SECONDS)`
+      - No `auth` argument — bearer token is injected as `Authorization: Bearer <token>` header per-request in `fetch()`.
     - Creates `self._guard = ComplianceGuard(config)` for use in the run loop.
     - Creates `self._log = logging.getLogger("ingestor.opensky")`.
 - `httpx.AsyncClient` is created once in `__init__` and reused across all fetch cycles (not per-request).
@@ -110,7 +111,7 @@ so that the system collects live ADS-B data from day one without operator babysi
      ```python
      adapter = adapter_class(config, settings)
      ```
-     This passes `IngestorSettings` to the adapter so it can extract provider-specific credentials (`opensky_username`, `opensky_password`) without re-reading env.
+     This passes `IngestorSettings` to the adapter so it can extract provider-specific credentials (`opensky_client_id`, `opensky_client_secret`) without re-reading env.
 - All other `main.py` logic is unchanged — startup sequence, `PROVIDER_DEFAULTS`, compliance gate, logging setup.
 
 **AC 7 — `adapters/__init__.py`: update comment**
@@ -158,8 +159,8 @@ so that the system collects live ADS-B data from day one without operator babysi
   **Group B — `OpenSkyAdapter` class declaration**
   - B1: `OpenSkyAdapter.provider_name == "opensky"`
   - B2: `OpenSkyAdapter.feed_type == FeedTypeEnum.adsb`
-  - B3: Instantiate with `config` + `settings=None` → `_auth is None`, client created without auth
-  - B4: Instantiate with `settings` carrying `opensky_username="user"`, `opensky_password="pass"` → `_auth` is `httpx.BasicAuth` instance
+  - B3: Instantiate with `config` + `settings=None` → `_client_id is None`, `_client_secret is None`, `_bearer_token is None`
+  - B4: Instantiate with `settings` carrying `opensky_client_id="id"`, `opensky_client_secret="secret"` → `_client_id` and `_client_secret` stored; `_bearer_token` starts as `None` (acquired lazily)
 
   **Group C — `fetch()` (respx mock)**
   - C1: Successful response with states list → returns correct `list[dict]` with named fields
@@ -167,8 +168,8 @@ so that the system collects live ADS-B data from day one without operator babysi
   - C3: Response with `states` absent from JSON → returns `[]`
   - C4: HTTP 429 response → `httpx.HTTPStatusError` raised (not caught in `fetch()`)
   - C5: Network error (`httpx.ConnectError`) → `httpx.RequestError` raised (not caught in `fetch()`)
-  - C6: Anonymous adapter (no auth) → request has no `Authorization` header
-  - C7: Authenticated adapter → request has `Authorization: Basic ...` header
+  - C6: Adapter with no client credentials (`_client_id=None`) → request has no `Authorization` header
+  - C7: Adapter with `_bearer_token` set → request has `Authorization: Bearer <token>` header
 
   **Group D — `run()` (mock `fetch`)**
   - D1: Single successful cycle → `normalize_adsb` called once per state vector; cycle log emitted; sleep called with `OPENSKY_POLL_INTERVAL_SECONDS`
@@ -196,46 +197,46 @@ so that the system collects live ADS-B data from day one without operator babysi
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Create `services/ingestor/ingestor/adapters/opensky.py`** (AC 1–5)
-  - [ ] 1.1 Add module docstring describing the adapter's role and compliance posture
-  - [ ] 1.2 Import `asyncio`, `logging`, `datetime`, `UTC` from stdlib; `ClassVar`, `Optional` from `typing`
-  - [ ] 1.3 Import `httpx`
-  - [ ] 1.4 Import `BaseIngestor` from `ingestor.base`; `ComplianceGuard`, `ProviderConfig` from `ingestor.compliance`; `normalize_adsb` from `ingestor.normalizer`; `FeedTypeEnum` from `schema.enums`
-  - [ ] 1.5 Define all 5 module-level constants (AC 1)
-  - [ ] 1.6 Define `_array_to_dict(state_vector: list) -> dict` (AC 3)
-  - [ ] 1.7 Define `OpenSkyAdapter(BaseIngestor)` with `provider_name` and `feed_type` ClassVars (AC 2)
-  - [ ] 1.8 Implement `__init__(self, config, settings=None)`: super() call, credential extraction, BasicAuth wiring, AsyncClient creation, guard + logger setup (AC 2)
-  - [ ] 1.9 Implement `async def fetch(self) -> list[dict]`: GET request, raise_for_status, parse states, _array_to_dict conversion (AC 4)
-  - [ ] 1.10 Implement `async def run(self) -> None`: while-True loop, received_at capture, fetch call, normalize loop with ValueError guard, cycle logging, sleep, backoff on error (AC 5)
-  - [ ] 1.11 Verify import chain: `compliance.py ← base.py ← main.py` — no circular imports with new `adapters/opensky.py`
+- [x] **Task 1: Create `services/ingestor/ingestor/adapters/opensky.py`** (AC 1–5)
+  - [x] 1.1 Add module docstring describing the adapter's role and compliance posture
+  - [x] 1.2 Import `asyncio`, `logging`, `datetime`, `UTC` from stdlib; `ClassVar`, `Optional` from `typing`
+  - [x] 1.3 Import `httpx`
+  - [x] 1.4 Import `BaseIngestor` from `ingestor.base`; `ComplianceGuard`, `ProviderConfig` from `ingestor.compliance`; `normalize_adsb` from `ingestor.normalizer`; `FeedTypeEnum` from `schema.enums`
+  - [x] 1.5 Define all 5 module-level constants (AC 1)
+  - [x] 1.6 Define `_array_to_dict(state_vector: list) -> dict` (AC 3)
+  - [x] 1.7 Define `OpenSkyAdapter(BaseIngestor)` with `provider_name` and `feed_type` ClassVars (AC 2)
+  - [x] 1.8 Implement `__init__(self, config, settings=None)`: super() call, credential extraction (`opensky_client_id`, `opensky_client_secret`), bearer token state init, AsyncClient creation, guard + logger setup (AC 2)
+  - [x] 1.9 Implement `async def fetch(self) -> list[dict]`: GET request, raise_for_status, parse states, _array_to_dict conversion (AC 4)
+  - [x] 1.10 Implement `async def run(self) -> None`: while-True loop, received_at capture, fetch call, normalize loop with ValueError guard, cycle logging, sleep, backoff on error (AC 5)
+  - [x] 1.11 Verify import chain: `compliance.py ← base.py ← main.py` — no circular imports with new `adapters/opensky.py`
 
-- [ ] **Task 2: Update `services/ingestor/ingestor/main.py`** (AC 6)
-  - [ ] 2.1 Add `from ingestor.adapters.opensky import OpenSkyAdapter` import
-  - [ ] 2.2 Add `PROVIDER_REGISTRY["opensky"] = OpenSkyAdapter` after the registry dict definition
-  - [ ] 2.3 Change `adapter = adapter_class(config)` → `adapter = adapter_class(config, settings)`
-  - [ ] 2.4 Verify no other changes to main.py; existing startup sequence and PROVIDER_DEFAULTS unchanged
+- [x] **Task 2: Update `services/ingestor/ingestor/main.py`** (AC 6)
+  - [x] 2.1 Add `from ingestor.adapters.opensky import OpenSkyAdapter` import
+  - [x] 2.2 Add `PROVIDER_REGISTRY["opensky"] = OpenSkyAdapter` after the registry dict definition
+  - [x] 2.3 Change `adapter = adapter_class(config)` → `adapter = adapter_class(config, settings)`
+  - [x] 2.4 Verify no other changes to main.py; existing startup sequence and PROVIDER_DEFAULTS unchanged
 
-- [ ] **Task 3: Update `services/ingestor/ingestor/adapters/__init__.py`** (AC 7)
-  - [ ] 3.1 Update comment block to reflect OpenSky is implemented, pattern documented for future providers
+- [x] **Task 3: Update `services/ingestor/ingestor/adapters/__init__.py`** (AC 7)
+  - [x] 3.1 Update comment block to reflect OpenSky is implemented, pattern documented for future providers
 
-- [ ] **Task 4: Update `services/ingestor/pyproject.toml`** (AC 8)
-  - [ ] 4.1 Add `httpx>=0.27` to `[project] dependencies`
-  - [ ] 4.2 Add `pytest-asyncio>=0.23` to `[project.optional-dependencies] test`
-  - [ ] 4.3 Add `respx>=0.20` to `[project.optional-dependencies] test`
+- [x] **Task 4: Update `services/ingestor/pyproject.toml`** (AC 8)
+  - [x] 4.1 Add `httpx>=0.27` to `[project] dependencies`
+  - [x] 4.2 Add `pytest-asyncio>=0.23` to `[project.optional-dependencies] test`
+  - [x] 4.3 Add `respx>=0.20` to `[project.optional-dependencies] test`
 
-- [ ] **Task 5: Create `services/ingestor/tests/test_opensky_adapter.py`** (AC 9)
-  - [ ] 5.1 Configure `pytest-asyncio` mode (add `asyncio_mode = "auto"` to `pyproject.toml` `[tool.pytest.ini_options]` or use `@pytest.mark.asyncio` per test)
-  - [ ] 5.2 Write Group A tests: `_array_to_dict()` (A1–A3)
-  - [ ] 5.3 Write Group B tests: class constants + `__init__` auth wiring (B1–B4)
-  - [ ] 5.4 Write Group C tests: `fetch()` with `respx` mock (C1–C7)
-  - [ ] 5.5 Write Group D tests: `run()` with patched `fetch` and patched `asyncio.sleep` (D1–D5)
-  - [ ] 5.6 Verify all 43 prior tests (test_normalizer.py + test_compliance.py) still pass
-  - [ ] 5.7 `pytest services/ingestor/tests/ -v` — all tests green
+- [x] **Task 5: Create `services/ingestor/tests/test_opensky_adapter.py`** (AC 9)
+  - [x] 5.1 Configure `pytest-asyncio` mode (add `asyncio_mode = "auto"` to `pyproject.toml` `[tool.pytest.ini_options]` or use `@pytest.mark.asyncio` per test)
+  - [x] 5.2 Write Group A tests: `_array_to_dict()` (A1–A3)
+  - [x] 5.3 Write Group B tests: class constants + `__init__` auth wiring (B1–B4)
+  - [x] 5.4 Write Group C tests: `fetch()` with `respx` mock (C1–C7)
+  - [x] 5.5 Write Group D tests: `run()` with patched `fetch` and patched `asyncio.sleep` (D1–D5)
+  - [x] 5.6 Verify all 43 prior tests (test_normalizer.py + test_compliance.py) still pass
+  - [x] 5.7 `pytest services/ingestor/tests/ -v` — all tests green
 
-- [ ] **Task 6: Local smoke test** (AC 10)
-  - [ ] 6.1 `pip install -e shared/ -e services/ingestor[test]` from repo root (adds httpx, pytest-asyncio, respx)
-  - [ ] 6.2 Import smoke: `python -c "from ingestor.adapters.opensky import OpenSkyAdapter; print(OpenSkyAdapter.provider_name)"` — prints `opensky`
-  - [ ] 6.3 With `PROVIDER=opensky` in env/`.env`: `python -m ingestor.main` — service starts, logs compliance status, enters fetch loop
+- [x] **Task 6: Local smoke test** (AC 10)
+  - [x] 6.1 `pip install -e shared/ -e services/ingestor[test]` from repo root (adds httpx, pytest-asyncio, respx)
+  - [x] 6.2 Import smoke: `python -c "from ingestor.adapters.opensky import OpenSkyAdapter; print(OpenSkyAdapter.provider_name)"` — prints `opensky`
+  - [x] 6.3 With `PROVIDER=opensky` in env/`.env`: `python -m ingestor.main` — service starts, logs compliance status, enters fetch loop
 
 ---
 
@@ -284,16 +285,21 @@ services/ingestor/tests/
 
 ### Auth Posture
 
-OpenSky uses HTTP Basic Auth (RFC 7617). Anonymous access is fully supported — the adapter falls back to unauthenticated when `OPENSKY_USERNAME` is empty.
+OpenSky's current programmatic API access mechanism is **OAuth2 client credentials** (per current OpenSky Network API documentation). The adapter uses a `client_id` / `client_secret` → bearer token flow.
 
-- `OPENSKY_USERNAME=` (empty) + `OPENSKY_PASSWORD=` (empty) → anonymous → `self._auth = None`
-- `OPENSKY_USERNAME=user` + `OPENSKY_PASSWORD=pass` → `self._auth = httpx.BasicAuth("user", "pass")`
+**Token acquisition:**
+- POST to the OpenSky OAuth2 token endpoint with `grant_type=client_credentials`, `client_id`, and `client_secret` (refer to current OpenSky API docs for the exact token endpoint URL).
+- Store the resulting `access_token` as `self._bearer_token`.
+- Inject as `Authorization: Bearer <token>` header on each `fetch()` request.
+- On a `401` response, discard the cached token and re-acquire before retrying.
 
-Both `OPENSKY_USERNAME` and `OPENSKY_PASSWORD` are already declared in:
-- `.env.example` (already present, empty by default — correct homelab posture)
-- `IngestorSettings` in `main.py` (already declared as `Optional[str] = None`)
+**Unauthenticated fallback:**
+- If `OPENSKY_CLIENT_ID` is empty/absent, the adapter makes requests without an `Authorization` header. Anonymous access may be rate-limited or restricted per current OpenSky API policy — this is an optional fallback only, not the recommended or future-proof mechanism for homelab use.
+- `self._bearer_token` remains `None`; no token fetch is attempted.
 
-Do NOT add a new env var. Do NOT invent OAuth, API keys, or token flows for OpenSky — Basic Auth is the correct mechanism per their API documentation.
+Both `OPENSKY_CLIENT_ID` and `OPENSKY_CLIENT_SECRET` must be declared in:
+- `.env.example` (empty by default — correct homelab posture before credentials are registered)
+- `IngestorSettings` in `main.py` (as `Optional[str] = None`)
 
 Credentials are passed via `getattr(settings, ..., None)` so that a `settings=None` call (e.g., in tests) does not raise `AttributeError`.
 
@@ -434,7 +440,7 @@ Story 3.1 confirmed: `pip install -e shared/ -e services/ingestor[test]` works c
 - Array → named dict conversion (`_array_to_dict`)
 - Continuous fetch loop (`run()`) with poll interval, retry, and backoff
 - Normalization via Story 3.1 `normalize_adsb()` — called in `run()`, output logged only
-- Optional HTTP Basic Auth (username/password from env via settings)
+- OAuth2 client credentials auth (client_id/client_secret → bearer token from env via settings; unauthenticated fallback when credentials absent)
 - `main.py` — two targeted changes: registry entry + settings pass-through
 - `pyproject.toml` — httpx + pytest deps added
 - Unit tests for all adapter behavior (no live network required)
@@ -472,7 +478,7 @@ Story 3.1 confirmed: `pip install -e shared/ -e services/ingestor[test]` works c
 | `pytest-asyncio>=0.23` | Added in this story | Required for async test support |
 | `respx>=0.20` | Added in this story | httpx mock library for `fetch()` tests |
 | No DB / Valkey required | — | All tests are pure Python; no external services required for AC 9 |
-| OpenSky credentials | Optional | `OPENSKY_USERNAME` + `OPENSKY_PASSWORD` — empty = anonymous (homelab default) |
+| OpenSky credentials | Optional | `OPENSKY_CLIENT_ID` + `OPENSKY_CLIENT_SECRET` — empty = unauthenticated fallback (homelab default before credentials registered) |
 | `.env` with `PROVIDER=opensky` | For smoke test only | Not required for `pytest` |
 
 ---
@@ -484,14 +490,14 @@ The following env vars are **already declared** in `.env.example` and `IngestorS
 | Env Var | Current state | Story 3.2 use |
 |---|---|---|
 | `PROVIDER` | `PROVIDER=opensky` | Selects OpenSkyAdapter via registry |
-| `OPENSKY_USERNAME` | Present, empty | Optional Basic Auth username (empty → anonymous) |
-| `OPENSKY_PASSWORD` | Present, empty | Optional Basic Auth password (empty → anonymous) |
+| `OPENSKY_CLIENT_ID` | Must be added, empty by default | OAuth2 client ID for bearer token acquisition (empty → unauthenticated fallback) |
+| `OPENSKY_CLIENT_SECRET` | Must be added, empty by default | OAuth2 client secret for bearer token acquisition (empty → unauthenticated fallback) |
 | `LOG_LEVEL` | `info` | Adapter uses `logging.getLogger("ingestor.opensky")` |
 | `DATABASE_URL` | Present but unused in this story | Not read in Story 3.2; Story 3.4 wires it |
 | `VALKEY_HOST` | Present but unused in this story | Not read in Story 3.2; Story 3.3 wires it |
 | `VALKEY_PORT` | Present but unused in this story | Not read in Story 3.2; Story 3.3 wires it |
 
-No `.env` changes required. No `.env.example` changes required.
+`.env.example` must be updated to add `OPENSKY_CLIENT_ID=` and `OPENSKY_CLIENT_SECRET=` (empty by default). `IngestorSettings` in `main.py` must declare both as `Optional[str] = None`.
 
 ---
 
@@ -509,7 +515,7 @@ No `.env` changes required. No `.env.example` changes required.
 - [services/ingestor/ingestor/normalizer.py](../../services/ingestor/ingestor/normalizer.py) — `normalize_adsb`, `NormalizedAdsbState` (do not modify)
 - [services/ingestor/ingestor/compliance.py](../../services/ingestor/ingestor/compliance.py) — `ComplianceGuard`, `ProviderConfig` (do not modify)
 - [services/ingestor/ingestor/main.py](../../services/ingestor/ingestor/main.py) — `IngestorSettings`, `PROVIDER_REGISTRY`, `PROVIDER_DEFAULTS` (targeted update only)
-- [.env.example](../../.env.example) — `OPENSKY_USERNAME`, `OPENSKY_PASSWORD`, `PROVIDER` vars confirmed present
+- [.env.example](../../.env.example) — `PROVIDER` var confirmed present; `OPENSKY_CLIENT_ID`, `OPENSKY_CLIENT_SECRET` must be added
 
 ---
 
@@ -517,13 +523,25 @@ No `.env` changes required. No `.env.example` changes required.
 
 ### Completion Notes
 
-*(To be filled in by dev agent upon story completion)*
+- Initial implementation completed: `adapters/opensky.py` (OAuth2 bearer token flow, `_array_to_dict`, `fetch()`, `run()` with exponential backoff), `main.py` registry + settings pass-through, `pyproject.toml` deps, `adapters/__init__.py` comment, `tests/test_opensky_adapter.py` (Groups A–D).
+- Code-review fixes applied: 401 retry-path test coverage added (C7-equivalent); unused imports cleaned up.
+- All unit tests passing (Groups A–D + 43 prior Story 3.1 tests).
+- Manual smoke test passed locally on Windows (Nikku, 2026-03-11):
+  - `PROVIDER=opensky python -m ingestor.main` from repo root in active venv — startup clean, no RuntimeError.
+  - Compliance log confirmed: `limited_mode=True, should_write_raw=False, interval=0.20s`.
+  - OAuth token request succeeded (HTTP 200).
+  - OpenSky states request succeeded (HTTP 200).
+  - Adapter logged: `Cycle complete: fetched=10625, normalized=10625, skipped=0`.
+  - Process stopped manually (Ctrl+C).
+  - **Non-blocking:** `CancelledError` during asyncio sleep + `KeyboardInterrupt` on exit observed on Ctrl+C — expected shutdown behavior, not a story failure.
+  - **Non-blocking:** Pydantic deprecation warning about class-based config observed at startup — technical debt, not a Story 3.2 blocker.
+- Story 3.2 closed by Nikku after local validation (2026-03-11).
 
 ### Files Changed
 
 ```
 services/ingestor/
-├── pyproject.toml                    ← UPDATED: httpx>=0.27; pytest-asyncio, respx to [test]
+├── pyproject.toml                    ← UPDATED: httpx>=0.27; pytest-asyncio, respx to [test]; asyncio_mode=auto
 └── ingestor/
     ├── main.py                       ← UPDATED: OpenSkyAdapter registered; settings passed to adapter
     └── adapters/
