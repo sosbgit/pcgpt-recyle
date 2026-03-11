@@ -62,7 +62,7 @@ development_status:
   2-3-watch-form: done
   2-4-compatible-vs-incompatible-change-detection: done
   2-5-disable-vs-delete-hierarchy: done
-  2-6-watch-list: ready-for-dev
+  2-6-watch-list: done
   epic-2-retrospective: optional
 
   # ─── Epic 3: Live Feed Ingestion & Feed Health Visibility ───
@@ -185,6 +185,17 @@ carry_forward_notes:
       - "No incompatible-change detection (2.4), no disable/delete (2.5), no list visual changes (2.6)."
       - "Build: tsc -b && vite build → 155 modules, 0 errors."
       - "Smoke test (AC 14) manually verified by Nikku (2026-03-10). All paths clean: new-mode form, create flow, edit-mode populate, geography locked, slider sync, baseline clamping, ✓ Saved, cancel behaviors. Story closed."
+
+  - story: 2-6-watch-list
+    date: 2026-03-11
+    notes:
+      - "Story 2.6 done. Status-driven left stripe, colored inline status badge, baseline progress bar live in WatchListRow.tsx."
+      - "Badge prop (2.2 seam) retired. Amber selection stripe retired. Padding fixed to always 13px. Selection feedback via background only (--bg-raised)."
+      - "BaselineProgressBar renders 80x4px track (--border-subtle), --accent-baseline fill, 0/{baseline_window_days}d label in IBM Plex Mono. Epic 4 placeholder ready."
+      - "Post-implementation fix: fontFamily: \"'IBM Plex Mono', monospace\" added to fraction label alongside fontVariantNumeric. One-line change, no structural impact."
+      - "Final DEV code review passed. Prior should-fix confirmed resolved. All ACs verified in code."
+      - "Manual smoke test passed locally by Nikku (2026-03-11). 9 scenarios verified: status badge per row, no amber stripe, background-only selection, INACTIVE dimming + no badge, BASELINE progress bar, [+ New] intact, form unchanged, row selection intact, disable→INACTIVE treatment correct."
+      - "Build: tsc -b && vite build → 156 modules, 0 errors. One file modified: WatchListRow.tsx."
 
   - story: 2-5-disable-vs-delete-hierarchy
     date: 2026-03-10

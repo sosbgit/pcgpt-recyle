@@ -1,6 +1,6 @@
 # Story 2.6: Watch List Visual Richness
 
-Status: ready-for-dev
+Status: done
 
 ## Dependency Note — Local-First Route
 
@@ -489,15 +489,15 @@ This story is frontend-only. No backend test changes.
   - [x] 4.5 Replace badge/status fallback block: render entity name + optional `·` separator + colored `statusLabel` span; skip badge block entirely when `statusLabel` is empty (INACTIVE)
   - [x] 4.6 Add `{isBaseline && <BaselineProgressBar windowDays={watch.baseline_window_days} />}` below secondary row
 
-- [ ] Task 5: TypeScript compile + smoke test (AC: #19, #20)
+- [x] Task 5: TypeScript compile + smoke test (AC: #19, #20)
   - [x] 5.1 `npm run build` — 0 TypeScript errors ✓ (156 modules, 1.29s)
-  - [ ] 5.2 Start infra + API + cockpit dev server; navigate to `/watches`
-  - [ ] 5.3 Verify all watch rows show status badges (colored text)
-  - [ ] 5.4 Verify no amber left stripe anywhere; stripe color matches watch status
-  - [ ] 5.5 Verify selected row: stripe unchanged, background shifts to `--bg-raised`
-  - [ ] 5.6 Verify INACTIVE row: no stripe, no badge, all text dimmed to `--text-tertiary`
-  - [ ] 5.7 Verify BASELINE/CREATED row (if any watch in that status): `BASELINE` badge + empty `0/Nd` progress bar
-  - [ ] 5.8 Verify existing behaviors unchanged: `[+ New]`, row click, loading/error/empty states
+  - [x] 5.2 Start infra + API + cockpit dev server; navigate to `/watches`
+  - [x] 5.3 Verify all watch rows show status badges (colored text)
+  - [x] 5.4 Verify no amber left stripe anywhere; stripe color matches watch status
+  - [x] 5.5 Verify selected row: stripe unchanged, background shifts to `--bg-raised`
+  - [x] 5.6 Verify INACTIVE row: no stripe, no badge, all text dimmed to `--text-tertiary`
+  - [x] 5.7 Verify BASELINE/CREATED row (if any watch in that status): `BASELINE` badge + empty `0/Nd` progress bar
+  - [x] 5.8 Verify existing behaviors unchanged: `[+ New]`, row click, loading/error/empty states
 
 ---
 
@@ -530,7 +530,22 @@ This story is frontend-only. No backend test changes.
 
 ## Completion Notes
 
-*(to be filled in after smoke test)*
+**Closed by:** Nikku — 2026-03-11
+
+**Final DEV code review:** Passed. Prior should-fix (missing `fontFamily` on baseline fraction label) confirmed resolved. All ACs satisfied in code. Scope held to one file, frontend-only. No new issues introduced.
+
+**Manual smoke test:** Passed locally by Nikku (2026-03-11).
+
+Verified scenarios:
+1. Selected watch row showed colored uppercase status label, no amber selection stripe, and background-only selection state (`--bg-raised`)
+2. Inactive row ("Hormuz Watch Updated") showed no visible stripe, no status label, and fully dimmed tertiary text — while selected
+3. Baseline/created row showed `BASELINE` badge in `--accent-baseline`, baseline progress bar, and `0/Nd` placeholder day label
+4. `[+ New]` button remained intact and opened new-watch form correctly
+5. New-watch form/panel behavior unchanged by this story
+6. Row-to-row selection remained normal — form updated correctly on switch
+7. Existing watch form opened correctly from row click
+8. Existing watch form/panel unchanged by this story
+9. Disabling an active watch produced correct INACTIVE treatment: no stripe, no status label, all text dimmed to `--text-tertiary`
 
 ---
 
@@ -545,3 +560,7 @@ This story is frontend-only. No backend test changes.
 ## Change Log
 
 - 2026-03-11: Story 2.6 created by Bob (SM, claude-sonnet-4-6). Prerequisites confirmed: 1.1, 1.2, 1.3, 1.7, 1.8, 2.1, 2.2, 2.3, 2.4, 2.5 all done. SM ambiguity resolution documented (§1–§8). Status badge table, stripe-vs-selection clarification, baseline progress placeholder, signal count deferral, badge prop retirement all resolved. Status: ready-for-dev.
+- 2026-03-11: Story 2.6 implemented by Amelia (dev agent, claude-sonnet-4-6). WatchListRow.tsx only. Status-driven stripe, BASELINE badge + progress bar, badge prop retired, amber stripe retired, padding always 13px, selection via background only. Build: 0 errors, 156 modules.
+- 2026-03-11: Post-implementation fix — `fontFamily: "'IBM Plex Mono', monospace"` added to baseline progress fraction label (alongside existing `fontVariantNumeric`). One-line change, no structural impact.
+- 2026-03-11: Final DEV code review passed. Prior should-fix confirmed resolved. All ACs verified in code. No new issues.
+- 2026-03-11: Manual smoke test passed by Nikku (local UI). All 9 scenarios verified clean. Story closed. Status: done.
