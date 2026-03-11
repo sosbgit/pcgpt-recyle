@@ -62,7 +62,7 @@ development_status:
   2-3-watch-form: done
   2-4-compatible-vs-incompatible-change-detection: done
   2-5-disable-vs-delete-hierarchy: done
-  2-6-watch-list: backlog
+  2-6-watch-list: ready-for-dev
   epic-2-retrospective: optional
 
   # ─── Epic 3: Live Feed Ingestion & Feed Health Visibility ───
