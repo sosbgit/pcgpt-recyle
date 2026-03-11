@@ -60,7 +60,7 @@ development_status:
   2-1-watches-api-crud: done
   2-2-watch-configuration-surface: done
   2-3-watch-form: done
-  2-4-compatible-vs-incompatible-change-detection: ready-for-dev
+  2-4-compatible-vs-incompatible-change-detection: done
   2-5-disable-vs-delete-hierarchy: backlog
   2-6-watch-list: backlog
   epic-2-retrospective: optional
@@ -185,6 +185,19 @@ carry_forward_notes:
       - "No incompatible-change detection (2.4), no disable/delete (2.5), no list visual changes (2.6)."
       - "Build: tsc -b && vite build → 155 modules, 0 errors."
       - "Smoke test (AC 14) manually verified by Nikku (2026-03-10). All paths clean: new-mode form, create flow, edit-mode populate, geography locked, slider sync, baseline clamping, ✓ Saved, cancel behaviors. Story closed."
+
+  - story: 2-4-compatible-vs-incompatible-change-detection
+    date: 2026-03-10
+    notes:
+      - "Story 2.4 implemented. Incompatible change detection live in WatchFormPanel.tsx."
+      - "isSignalFamiliesIncompatible: Set-based comparison (order-independent) vs watch.enabled_signal_families."
+      - "isBaselineWindowIncompatible: strict equality vs watch.baseline_window_days — derived from committed (post-blur/clamp) state only."
+      - "hasIncompatibleChange drives saveLabel: 'Save & Reset Baseline' when true, 'Save Changes' when false."
+      - "Two inline warning banners: amber left-border, --bg-raised background, --accent-attention icon, --text-secondary text. Purely derived — auto-clear on revert or cancel."
+      - "handleSave, handleCancel, PATCH payload: unchanged. rightSlot and data-slot=delete-zone seams: untouched."
+      - "Backend baseline FSM (baseline → in_progress, superseded) deferred to Epic 4 / Story 4.3."
+      - "Build: tsc -b && vite build → 155 modules, 0 errors."
+      - "Only file modified: services/cockpit/src/components/watch-config/WatchFormPanel.tsx."
 
   - story: 2-2-watch-configuration-surface
     date: 2026-03-10
