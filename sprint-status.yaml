@@ -61,7 +61,7 @@ development_status:
   2-2-watch-configuration-surface: done
   2-3-watch-form: done
   2-4-compatible-vs-incompatible-change-detection: done
-  2-5-disable-vs-delete-hierarchy: ready-for-dev
+  2-5-disable-vs-delete-hierarchy: review
   2-6-watch-list: backlog
   epic-2-retrospective: optional
 
@@ -185,6 +185,20 @@ carry_forward_notes:
       - "No incompatible-change detection (2.4), no disable/delete (2.5), no list visual changes (2.6)."
       - "Build: tsc -b && vite build → 155 modules, 0 errors."
       - "Smoke test (AC 14) manually verified by Nikku (2026-03-10). All paths clean: new-mode form, create flow, edit-mode populate, geography locked, slider sync, baseline clamping, ✓ Saved, cancel behaviors. Story closed."
+
+  - story: 2-5-disable-vs-delete-hierarchy
+    date: 2026-03-10
+    notes:
+      - "Story 2.5 implemented. Disable/Enable/Delete lifecycle controls live in WatchFormPanel.tsx."
+      - "Backend: is_active: Optional[bool] added to WatchUpdate. PATCH handler applies status transitions (is_active=False → inactive, is_active=True → created). DELETE endpoint repurposed to permanent delete — row removed, 204 No Content, no body. WatchBaseline rows cascade-deleted by FK."
+      - "Frontend: useDeleteWatch.ts created. useUpdateWatch.ts extended with is_active?: boolean. Second useUpdateWatch() instance (lifecycleMutation) used for disable/enable — independent pending state from save mutation."
+      - "WatchFormPanel.tsx: header shows [Disable] (active watch) or [Enable] (inactive watch) in edit mode only. [Disable] has two-click inline confirmation. [Enable] is single-click. delete zone replaces placeholder with text-link + inline expand confirmation. All lifecycle state resets on watch/mode change."
+      - "WatchConfigPage.tsx: handleWatchDeleted added, passed as onWatchDeleted prop. On delete success: selectedWatchId cleared → form returns to none state."
+      - "AC 21 clarification honored: DELETE is permanent, not soft-disable. Story 2.1 soft-delete behavior superseded."
+      - "Tests: 5 new backend tests added (2 DELETE, 3 PATCH is_active). 2 old soft-delete tests replaced. 25/25 watches, 66/66 full suite passing."
+      - "Build: tsc -b && vite build → 156 modules, 0 errors."
+      - "2.4 warning banners untouched. WatchListRow/WatchListColumn untouched. rightSlot prop retained."
+      - "Smoke test: pending Nikku manual verification (11.3–11.8)."
 
   - story: 2-4-compatible-vs-incompatible-change-detection
     date: 2026-03-10
