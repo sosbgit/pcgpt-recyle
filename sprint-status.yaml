@@ -61,7 +61,7 @@ development_status:
   2-2-watch-configuration-surface: done
   2-3-watch-form: done
   2-4-compatible-vs-incompatible-change-detection: done
-  2-5-disable-vs-delete-hierarchy: review
+  2-5-disable-vs-delete-hierarchy: done
   2-6-watch-list: backlog
   epic-2-retrospective: optional
 
@@ -198,7 +198,7 @@ carry_forward_notes:
       - "Tests: 5 new backend tests added (2 DELETE, 3 PATCH is_active). 2 old soft-delete tests replaced. 25/25 watches, 66/66 full suite passing."
       - "Build: tsc -b && vite build → 156 modules, 0 errors."
       - "2.4 warning banners untouched. WatchListRow/WatchListColumn untouched. rightSlot prop retained."
-      - "Smoke test: pending Nikku manual verification (11.3–11.8)."
+      - "Smoke test passed locally (Nikku, 2026-03-10). All scenarios 11.3–11.8 verified clean: Disable inline confirm, Cancel restores button, Confirm Disable dims row and shows [Enable], [Enable] un-dims and restores [Disable], Delete confirm block, Confirm Delete clears selection and removes watch from list, new-watch mode has no lifecycle controls, 2.4 amber banners remained visible during disable flow. Story closed."
 
   - story: 2-4-compatible-vs-incompatible-change-detection
     date: 2026-03-10

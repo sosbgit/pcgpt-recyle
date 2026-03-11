@@ -1,6 +1,6 @@
 # Story 2.5: Disable / Enable / Delete Hierarchy
 
-Status: review
+Status: done
 
 ## Dependency Note — Local-First Route
 
@@ -945,12 +945,12 @@ npm run dev
 - [x] Task 11: Build verification + smoke test (AC: #25, #26)
   - [x] 11.1 `npm run build` → 156 modules, 0 TypeScript errors, 0 Vite errors
   - [x] 11.2 Backend tests: `pytest services/api/tests/test_watches.py` → 25/25 passing; full suite 66/66 passing
-  - [ ] 11.3 Start infra + API + cockpit dev server; perform full smoke test (Nikku)
-  - [ ] 11.4 Verify Disable flow: [Disable] → confirm → [Enable] visible; row dims; watch stays selected
-  - [ ] 11.5 Verify Enable flow: [Enable] → [Disable] visible; row un-dims; watch stays selected
-  - [ ] 11.6 Verify Delete flow: text-link → confirm → watch gone from list; form shows none state
-  - [ ] 11.7 Verify new-watch mode: no lifecycle controls visible
-  - [ ] 11.8 Verify 2.4 banners unaffected by disable action (trigger an incompatible change, then disable — banner must remain visible)
+  - [x] 11.3 Start infra + API + cockpit dev server; perform full smoke test (Nikku)
+  - [x] 11.4 Verify Disable flow: [Disable] → confirm → [Enable] visible; row dims; watch stays selected
+  - [x] 11.5 Verify Enable flow: [Enable] → [Disable] visible; row un-dims; watch stays selected
+  - [x] 11.6 Verify Delete flow: text-link → confirm → watch gone from list; form shows none state
+  - [x] 11.7 Verify new-watch mode: no lifecycle controls visible
+  - [x] 11.8 Verify 2.4 banners unaffected by disable action (trigger an incompatible change, then disable — banner must remain visible)
 
 ---
 
@@ -1015,7 +1015,7 @@ npm run dev
 
 ## Completion Notes
 
-- All ACs 1–26 implemented and/or verified by build/test (11.3–11.8 require Nikku manual smoke test).
+- All ACs 1–26 implemented and verified. Manual smoke test (11.3–11.8) passed locally by Nikku (2026-03-10). All eight scenarios clean: Disable inline confirm, Enable restore, row dim/undim, Delete → none state, new-watch mode pristine, 2.4 banners unaffected by disable.
 - AC 21 authoritative clarification honored: DELETE returns 204 No Content, no body, permanent row removal.
 - 2.4 warning banner logic (`isSignalFamiliesIncompatible`, `isBaselineWindowIncompatible`, `hasIncompatibleChange`, `saveLabel`) — **not touched** in this story.
 - `WatchListRow.tsx`, `WatchListColumn.tsx`, `useWatches.ts`, `useGeographyEntities.ts`, `useCreateWatch.ts` — **not touched**.
