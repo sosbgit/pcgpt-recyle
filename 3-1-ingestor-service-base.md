@@ -122,14 +122,9 @@ so that provider adapters (OpenSky — Story 3.2, ADS-B Exchange — Story 9.1, 
 - All tests pass with `pytest services/ingestor/tests/ -v` from repo root (no external services required).
 
 **AC 8 — Import smoke test**
-- From repo root, with `panoptes-shared` and `pydantic-settings` installed:
+- From `services/ingestor`, with required dependencies installed:
   ```bash
-  python -c "
-  from ingestor.base import BaseIngestor
-  from ingestor.normalizer import normalize_adsb, NormalizedAdsbState
-  from ingestor.compliance import ProviderConfig, ComplianceGuard
-  print('ok')
-  "
+  python -c "from ingestor.base import BaseIngestor; from ingestor.normalizer import normalize_adsb, NormalizedAdsbState; from ingestor.compliance import ProviderConfig, ComplianceGuard; print('ok')"
   ```
   exits 0.
 
