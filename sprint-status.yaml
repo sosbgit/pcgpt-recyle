@@ -61,7 +61,7 @@ development_status:
   2-2-watch-configuration-surface: done
   2-3-watch-form: done
   2-4-compatible-vs-incompatible-change-detection: done
-  2-5-disable-vs-delete-hierarchy: backlog
+  2-5-disable-vs-delete-hierarchy: ready-for-dev
   2-6-watch-list: backlog
   epic-2-retrospective: optional
 
