@@ -67,8 +67,8 @@ development_status:
 
   # ─── Epic 3: Live Feed Ingestion & Feed Health Visibility ───
   epic-3: in-progress
-  3-1-ingestor-service-base: ready-for-dev
-  3-2-opensky-adapter: backlog
+  3-1-ingestor-service-base: done
+  3-2-opensky-adapter: ready-for-dev
   3-3-valkey-pubsub: backlog
   3-4-entity-state-db-writes: backlog
   3-5-feed-health-api: backlog
@@ -145,6 +145,29 @@ development_status:
 
 # ─── Carry-Forward Notes ───────────────────────────────────────────────────
 carry_forward_notes:
+  - story: 3-2-opensky-adapter
+    date: 2026-03-11
+    notes:
+      - "Story 3.2 created and ready-for-dev (2026-03-11, Bob/SM)."
+      - "Scope: adapters/opensky.py (OpenSkyAdapter), main.py registry + settings pass-through, httpx dep, unit tests."
+      - "Key constants: OPENSKY_POLL_INTERVAL_SECONDS=120, OPENSKY_INITIAL_BACKOFF_SECONDS=30, OPENSKY_MAX_BACKOFF_SECONDS=300."
+      - "Auth: optional HTTP BasicAuth from OPENSKY_USERNAME/OPENSKY_PASSWORD; anonymous when empty (homelab default)."
+      - "Compliance posture preserved: commercial_use_allowed=False, terms_status=under_review, limited_mode=True, should_write_raw=False."
+      - "run() produces NormalizedAdsbState objects — no Valkey publish (3.3), no DB writes (3.4)."
+      - "BaseIngestor (base.py) unchanged. OpenSkyAdapter overrides __init__ with (config, settings=None)."
+      - "Test deps: pytest-asyncio>=0.23, respx>=0.20 added to pyproject.toml [test]."
+      - "Unblocks: 3.3 (Valkey pub/sub), 3.4 (DB writes)."
+
+  - story: 3-1-ingestor-service-base
+    date: 2026-03-11
+    notes:
+      - "Story 3.1 done. BaseIngestor ABC, ProviderConfig, ComplianceGuard, NormalizedAdsbState, normalize_adsb(), IngestorSettings, PROVIDER_REGISTRY, PROVIDER_DEFAULTS all implemented."
+      - "43/43 pytest tests passing (test_normalizer.py + test_compliance.py). No DB, Valkey, or HTTP required."
+      - "Implementation correction: original AC 6 spec used `panoptes-shared @ file://../../shared` (editable path reference). This form failed on Windows during smoke test. Fixed to bare dependency name `panoptes-shared` — compatible with `pip install -e shared/` pre-install pattern. Recorded as resolved packaging correction."
+      - "Smoke test passed locally (Nikku, 2026-03-11): pip install -e shared/ -e services/ingestor[test] clean; import smoke test printed ok; pytest 43/43 green."
+      - "Final DEV code review passed. Story closed by Nikku after local validation."
+      - "Unblocks: 3.2 (OpenSky adapter), 3.3 (Valkey pub/sub), 3.4 (DB writes)."
+
   - story: 1-3-shared-schema-python-package
     date: 2026-03-09
     notes:
