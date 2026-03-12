@@ -71,8 +71,8 @@ development_status:
   3-2-opensky-adapter: done
   3-3-valkey-pubsub: done
   3-4-entity-state-db-writes: done
-  3-5-feed-health-api: ready-for-dev
-  3-6-feed-health-signal-desk: backlog
+  3-5-feed-health-api: done
+  3-6-feed-health-signal-desk: ready-for-dev
   epic-3-retrospective: optional
 
   # ─── Epic 4: Baseline Computation & Watch Lifecycle States ───
@@ -145,6 +145,21 @@ development_status:
 
 # ─── Carry-Forward Notes ───────────────────────────────────────────────────
 carry_forward_notes:
+  - story: 3-5-feed-health-api
+    date: 2026-03-11
+    notes:
+      - "Story 3.5 done (2026-03-11, Nikku)."
+      - "Scope: shared/schema/feeds.py (FeedHealth.ttl_seconds Optional[int]=None), services/api/api/routers/feeds.py (GET /api/v1/feeds/health, passive Valkey TTL derivation), services/api/api/main.py (feeds router wired), services/api/tests/test_feeds.py (Groups F1–F8)."
+      - "Post-review fix: redis.asyncio.Redis type annotation tightened in feeds router."
+      - "All tests passing: pytest services/api/tests/ -v — prior groups + Group F."
+      - "Final DEV code review passed."
+      - "Manual smoke test passed locally on Windows with live API + Valkey + ingestor (Nikku, 2026-03-11)."
+      - "Live state confirmed: status=live, ttl_seconds=26 while ingestor running."
+      - "Stale state confirmed: status=stale, ttl_seconds=null after ingestor stop and TTL expiry."
+      - "Passive staleness via Valkey TTL expiry working as designed — no ingestor-side stale flag needed."
+      - "Story 3.5 closed by Nikku after local validation (2026-03-11)."
+      - "Unblocks: 3.6 (Signal Desk feed health UI)."
+
   - story: 3-4-entity-state-db-writes
     date: 2026-03-11
     notes:
